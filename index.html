@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⛏️ Miner Wars Ultimate Toolkit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --accent-gold: #fbbf24;
+            --accent-orange: #f97316;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: radial-gradient(ellipse at top, rgba(251, 191, 36, 0.05) 0%, transparent 50%);
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 25px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 25px; }
+        h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
+        }
+        .subtitle { color: var(--text-secondary); font-size: 0.8rem; }
+        .sound-toggle {
+            position: fixed; top: 15px; right: 15px; z-index: 1000;
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-card); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
+        }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 24px; transition: 0.3s;
+        }
+        .toggle-slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px;
+            background: var(--text-secondary); border-radius: 50%; transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--accent-green); border-color: var(--accent-green); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); background: white; }
+        .tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn {
+            font-family: 'Orbitron', sans-serif; padding: 8px 14px; border: 2px solid var(--border-color);
+            background: var(--bg-secondary); color: var(--text-secondary); border-radius: 6px;
+            cursor: pointer; transition: all 0.3s ease; font-size: 0.7rem;
+        }
+        .tab-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            color: var(--bg-primary); border-color: var(--accent-gold);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+        .card-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--accent-gold); }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        .timer-display { text-align: center; padding: 25px; }
+        .block-number { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; color: var(--accent-gold); }
+        .time-since { font-size: 2.8rem; font-weight: 700; color: var(--text-primary); margin: 12px 0; font-family: 'Orbitron', sans-serif; }
+        .time-since.warning { color: var(--accent-orange); animation: pulse 1s infinite; }
+        .time-since.danger { color: var(--accent-red); animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .time-label { color: var(--text-secondary); font-size: 0.8rem; }
+        .progress-bar { width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; margin-top: 16px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-gold), var(--accent-orange), var(--accent-red)); transition: width 0.5s ease; }
+        .stat-box { background: var(--bg-secondary); padding: 16px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color); }
+        .stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--accent-gold); }
+        .stat-value.positive { color: var(--accent-green); }
+        .stat-value.negative { color: var(--accent-red); }
+        .stat-label { color: var(--text-secondary); font-size: 0.7rem; margin-top: 4px; }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 4px; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+        }
+        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent-gold); }
+        .input-row { display: flex; gap: 10px; }
+        .input-row .input-group { flex: 1; }
+        .btn {
+            font-family: 'Orbitron', sans-serif; padding: 10px 20px; border: none; border-radius: 6px;
+            cursor: pointer; font-size: 0.8rem; transition: all 0.3s ease;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange)); color: var(--bg-primary); }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-danger { background: var(--accent-red); color: white; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-sm { padding: 6px 12px; font-size: 0.7rem; }
+        .btn-block { width: 100%; }
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+        .alert-warning { background: rgba(251, 191, 36, 0.1); border: 1px solid var(--accent-gold); color: var(--accent-gold); }
+        .alert-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); color: var(--accent-red); }
+        .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-green); color: var(--accent-green); }
+        .alert-info { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+        .info-panel { background: var(--bg-secondary); border-left: 3px solid var(--accent-blue); padding: 12px; margin: 12px 0; font-size: 0.75rem; color: var(--text-secondary); }
+        .timing-indicator { display: inline-block; padding: 4px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 600; }
+        .timing-safe { background: var(--accent-green); color: var(--bg-primary); }
+        .timing-caution { background: var(--accent-gold); color: var(--bg-primary); }
+        .timing-risky { background: var(--accent-orange); color: var(--bg-primary); }
+        .timing-danger { background: var(--accent-red); color: white; }
+        .price-large { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); }
+        .price-change { font-size: 1.1rem; margin-top: 8px; }
+        .price-change.up { color: var(--accent-green); }
+        .price-change.down { color: var(--accent-red); }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .data-table th, .data-table td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .data-table th { color: var(--accent-gold); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; }
+        .tracker-entry { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 8px; }
+        .tracker-entry .amount { font-family: 'Orbitron', sans-serif; font-weight: 700; }
+        .tracker-entry .amount.spent { color: var(--accent-red); }
+        .tracker-entry .amount.earned { color: var(--accent-green); }
+        .multiplier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 6px; margin-top: 8px; }
+        .multiplier-btn {
+            padding: 10px 6px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-primary); font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem; cursor: pointer; transition: all 0.3s ease;
+        }
+        .multiplier-btn:hover, .multiplier-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(251, 191, 36, 0.1); }
+        .result-box { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .result-box.positive { border-color: var(--accent-green); }
+        .result-box.negative { border-color: var(--accent-red); }
+        .result-value { font-size: 1.4rem; font-weight: 700; }
+        .result-value.positive { color: var(--accent-green); }
+        .result-value.negative { color: var(--accent-red); }
+        .strategy-box { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid var(--accent-purple); border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .strategy-title { font-family: 'Orbitron', sans-serif; color: var(--accent-purple); margin-bottom: 8px; font-size: 0.9rem; }
+        .strategy-text { color: var(--text-secondary); line-height: 1.5; font-size: 0.8rem; }
+        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+        .clan-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
+        .clan-card.recommended { border-color: var(--accent-gold); }
+        .clan-name { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--accent-gold); margin-bottom: 12px; }
+        .clan-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .clan-stat { text-align: center; padding: 8px; background: var(--bg-card); border-radius: 4px; }
+        .clan-stat-value { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--text-primary); }
+        .clan-stat-label { font-size: 0.6rem; color: var(--text-secondary); }
+        .code-block { background: #1e1e1e; border-radius: 8px; padding: 16px; overflow-x: auto; font-size: 0.65rem; line-height: 1.4; max-height: 350px; }
+        .code-block pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-radius: 6px; }
+        .checklist-item:hover { background: var(--bg-secondary); }
+        .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-green); }
+        /* Predictor Styles */
+        .predictor-box { background: var(--bg-secondary); border-radius: 12px; padding: 20px; text-align: center; border: 2px solid var(--border-color); }
+        .predictor-box.short { border-color: var(--accent-green); background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); }
+        .predictor-box.medium { border-color: var(--accent-gold); background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05)); }
+        .predictor-box.long { border-color: var(--accent-red); background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05)); }
+        .predictor-label { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .predictor-value { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; }
+        .predictor-value.short { color: var(--accent-green); }
+        .predictor-value.medium { color: var(--accent-gold); }
+        .predictor-value.long { color: var(--accent-red); }
+        .predictor-prob { font-size: 0.85rem; margin-top: 8px; color: var(--text-secondary); }
+        .probability-bar { display: flex; height: 30px; border-radius: 6px; overflow: hidden; margin: 15px 0; }
+        .prob-segment { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; transition: width 0.5s ease; }
+        .prob-short { background: var(--accent-green); color: var(--bg-primary); }
+        .prob-medium { background: var(--accent-gold); color: var(--bg-primary); }
+        .prob-long { background: var(--accent-red); color: white; }
+        .history-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; padding: 10px 0; }
+        .history-bar { flex: 1; min-width: 8px; border-radius: 2px 2px 0 0; transition: height 0.3s; cursor: pointer; position: relative; }
+        .history-bar:hover::after {
+            content: attr(data-time);
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: var(--bg-card); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; white-space: nowrap;
+        }
+        .history-bar.short { background: var(--accent-green); }
+        .history-bar.medium { background: var(--accent-gold); }
+        .history-bar.long { background: var(--accent-red); }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.4rem; }
+            .block-number { font-size: 1.6rem; }
+            .time-since { font-size: 1.8rem; }
+            .tabs { gap: 4px; }
+            .tab-btn { padding: 6px 8px; font-size: 0.6rem; }
+            .sound-toggle { top: 8px; right: 8px; padding: 6px 8px; }
+            .price-large { font-size: 1.8rem; }
+            .predictor-value { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sound-toggle">
+        <span>🔊</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="soundEnabled">
+            <span class="toggle-slider"></span>
+        </label>
+        <label for="soundEnabled" style="font-size:0.7rem;color:var(--text-secondary)">Alerts</label>
+    </div>
+    <div class="container">
+        <header>
+            <h1>⛏️ MINER WARS TOOLKIT</h1>
+            <p class="subtitle">Block Timer • Predictor • Prices • ROI • Tracker • Clans • Discord Bot</p>
+        </header>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="timer">⏱️ Timer</button>
+            <button class="tab-btn" data-tab="predictor">🔮 Predictor</button>
+            <button class="tab-btn" data-tab="price">💰 Prices</button>
+            <button class="tab-btn" data-tab="calculator">📊 ROI</button>
+            <button class="tab-btn" data-tab="tracker">📒 Tracker</button>
+            <button class="tab-btn" data-tab="clans">⚔️ Clans</button>
+            <button class="tab-btn" data-tab="discord">🤖 Bot</button>
+            <button class="tab-btn" data-tab="strategy">🎯 Strategy</button>
+        </div>
+
+        <!-- TIMER TAB -->
+        <div id="timer" class="tab-content active">
+            <div class="card">
+                <div class="card-header"><span>⏱️</span><span class="card-title">LIVE BITCOIN BLOCK TIMER</span></div>
+                <div class="timer-display">
+                    <div class="time-label">CURRENT BLOCK</div>
+                    <div class="block-number" id="blockHeight">Loading...</div>
+                    <div class="time-label" style="margin-top:20px">TIME SINCE LAST BLOCK</div>
+                    <div class="time-since" id="timeSince">--:--</div>
+                    <div id="roundStatus" class="timing-indicator timing-safe">EARLY ROUND</div>
+                    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+                </div>
+            </div>
+            <div class="grid-4">
+                <div class="stat-box"><div class="stat-value" id="avgBlockTime">~10</div><div class="stat-label">AVG TIME (min)</div></div>
+                <div class="stat-box"><div class="stat-value" id="pendingTx">--</div><div class="stat-label">MEMPOOL TX</div></div>
+                <div class="stat-box"><div class="stat-value" id="hashRate">--</div><div class="stat-label">HASHRATE</div></div>
+                <div class="stat-box"><div class="stat-value" id="feeRate">--</div><div class="stat-label">FEE (sat/vB)</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>🎯</span><span class="card-title">SPELL RECOMMENDATION</span></div>
+                <div id="spellRec"><div class="alert alert-warning">⏳ Loading...</div></div>
+            </div>
+        </div>
+
+        <!-- PREDICTOR TAB -->
+        <div id="predictor" class="tab-content">
+            <div class="alert alert-info">🔮 Predictions based on recent block history, mempool activity, and statistical analysis</div>
+            <div class="card">
+                <div class="card-header"><span>🔮</span><span class="card-title">BLOCK TIME PREDICTION</span></div>
+                <div class="grid-3">
+                    <div class="predictor-box short" id="predShort">
+                        <div class="predictor-label">SHORT ROUND</div>
+                        <div class="predictor-value short">&lt;5 min</div>
+                        <div class="predictor-prob" id="probShort">--% chance</div>
+                    </div>
+                    <div class="predictor-box medium" id="predMedium">
+                        <div class="predictor-label">NORMAL ROUND</div>
+                        <div class="predictor-value medium">5-12 min</div>
+                        <div class="predictor-prob" id="probMedium">--% chance</div>
+                    </div>
+                    <div class="predictor-box long" id="predLong">
+                        <div class="predictor-label">LONG ROUND</div>
+                        <div class="predictor-value long">&gt;12 min</div>
+                        <div class="predictor-prob" id="probLong">--% chance</div>
+                    </div>
+                </div>
+                <div style="margin-top:20px">
+                    <div class="time-label" style="margin-bottom:8px">PROBABILITY DISTRIBUTION</div>
+                    <div class="probability-bar">
+                        <div class="prob-segment prob-short" id="barShort" style="width:33%">Short</div>
+                        <div class="prob-segment prob-medium" id="barMedium" style="width:34%">Normal</div>
+                        <div class="prob-segment prob-long" id="barLong" style="width:33%">Long</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>📊</span><span class="card-title">PREDICTION FACTORS</span></div>
+                <div class="grid-4">
+                    <div class="stat-box">
+                        <div class="stat-value" id="recentAvg">--</div>
+                        <div class="stat-label">RECENT AVG (min)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="mempoolPressure">--</div>
+                        <div class="stat-label">MEMPOOL PRESSURE</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="hashTrend">--</div>
+                        <div class="stat-label">HASH TREND</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="predictedTime">--</div>
+                        <div class="stat-label">EST. NEXT BLOCK</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>📈</span><span class="card-title">LAST 20 BLOCKS HISTORY</span></div>
+                <div class="history-chart" id="blockHistory"></div>
+                <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-secondary);margin-top:5px">
+                    <span>← Older</span>
+                    <span>Newer →</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>🎯</span><span class="card-title">SPELL STRATEGY BASED ON PREDICTION</span></div>
+                <div id="predictionStrategy"><div class="info-panel">Analyzing...</div></div>
+            </div>
+        </div>
+
+        <!-- PRICE TAB -->
+        <div id="price" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><span>🪙</span><span class="card-title">GOMINING (GMT)</span></div>
+                    <div style="text-align:center;padding:16px">
+                        <div class="price-large" id="gmtPrice">$0.00</div>
+                        <div class="price-change" id="gmtChange">Loading...</div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="stat-box"><div class="stat-value" id="gmtHigh">--</div><div class="stat-label">24H HIGH</div></div>
+                        <div class="stat-box"><div class="stat-value" id="gmtLow">--</div><div class="stat-label">24H LOW</div></div>
+                        <div class="stat-box"><div class="stat-value" id="gmtVol">--</div><div class="stat-label">VOLUME</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>₿</span><span class="card-title">BITCOIN (BTC)</span></div>
+                    <div style="text-align:center;padding:16px">
+                        <div class="price-large" id="btcPrice">$0</div>
+                        <div class="price-change" id="btcChange">Loading...</div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="stat-box"><div class="stat-value" id="btcHigh">--</div><div class="stat-label">24H HIGH</div></div>
+                        <div class="stat-box"><div class="stat-value" id="btcLow">--</div><div class="stat-label">24H LOW</div></div>
+                        <div class="stat-box"><div class="stat-value" id="btcDom">--</div><div class="stat-label">DOMINANCE</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>🔔</span><span class="card-title">PRICE ALERTS</span></div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Alert when GMT below ($)</label><input type="number" id="alertLow" value="0.40" step="0.01"></div>
+                    <div class="input-group"><label>Alert when GMT above ($)</label><input type="number" id="alertHigh" value="0.70" step="0.01"></div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="setAlerts()">SET ALERTS</button>
+                <div id="alertStatus" style="margin-top:12px"></div>
+            </div>
+        </div>
+
+        <!-- ROI CALCULATOR TAB -->
+        <div id="calculator" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><span>⚙️</span><span class="card-title">YOUR STATS</span></div>
+                    <div class="input-group"><label>Your TH Power</label><input type="number" id="yourTH" value="50"></div>
+                    <div class="input-group"><label>Clan Total TH</label><input type="number" id="clanTH" value="5000"></div>
+                    <div class="input-group"><label>League</label>
+                        <select id="yourLeague">
+                            <option value="dune">Dune</option>
+                            <option value="horizon" selected>Horizon</option>
+                            <option value="eclipse">Eclipse</option>
+                            <option value="odyssey">Odyssey</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>💎</span><span class="card-title">BOOST CALC</span></div>
+                    <div class="input-group"><label>Boost Cost (GMT)</label><input type="number" id="boostCost" value="100"></div>
+                    <div class="input-group"><label>Token Price ($)</label><input type="number" id="tokenPrice" value="0.50" step="0.01"></div>
+                    <div class="input-group"><label>Multiplier</label></div>
+                    <div class="multiplier-grid">
+                        <button class="multiplier-btn" data-mult="1">x1</button>
+                        <button class="multiplier-btn active" data-mult="2">x2</button>
+                        <button class="multiplier-btn" data-mult="4">x4</button>
+                        <button class="multiplier-btn" data-mult="8">x8</button>
+                        <button class="multiplier-btn" data-mult="16">x16</button>
+                        <button class="multiplier-btn" data-mult="32">x32</button>
+                        <button class="multiplier-btn" data-mult="64">x64</button>
+                        <button class="multiplier-btn" data-mult="128">x128</button>
+                        <button class="multiplier-btn" data-mult="256">x256</button>
+                    </div>
+                    <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="calcROI()">CALCULATE</button>
+                </div>
+            </div>
+            <div class="card"><div class="card-header"><span>📊</span><span class="card-title">RESULTS</span></div><div id="roiResults"><div class="info-panel">Enter stats and click Calculate</div></div></div>
+        </div>
+
+        <!-- TRACKER TAB -->
+        <div id="tracker" class="tab-content">
+            <div class="alert alert-info">💾 Data saved locally in your browser</div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><span>➕</span><span class="card-title">ADD ENTRY</span></div>
+                    <div class="input-group"><label>Type</label>
+                        <select id="entryType">
+                            <option value="spent">🔴 Spent</option>
+                            <option value="earned">🟢 Earned</option>
+                            <option value="btc">₿ BTC</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group"><label>Amount</label><input type="number" id="entryAmt" value="0" step="0.00000001"></div>
+                        <div class="input-group"><label>Multiplier</label>
+                            <select id="entryMult"><option>x1</option><option>x2</option><option>x4</option><option selected>x8</option><option>x16</option><option>x32</option><option>x64</option><option>x128</option><option>x256</option></select>
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Notes</label><input type="text" id="entryNotes" placeholder="Optional"></div>
+                    <button class="btn btn-primary btn-block" onclick="addEntry()">ADD</button>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>📊</span><span class="card-title">THIS WEEK</span></div>
+                    <div class="summary-row"><span>Spent</span><span class="stat-value negative" id="wkSpent">0</span></div>
+                    <div class="summary-row"><span>Earned</span><span class="stat-value positive" id="wkEarned">0</span></div>
+                    <div class="summary-row"><span>BTC</span><span class="stat-value" id="wkBTC">0</span></div>
+                    <div class="summary-row"><span>Net</span><span class="stat-value" id="wkNet">0</span></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" style="justify-content:space-between"><div style="display:flex;gap:10px"><span>📜</span><span class="card-title">HISTORY</span></div>
+                    <div><button class="btn btn-secondary btn-sm" onclick="exportData()">Export</button> <button class="btn btn-danger btn-sm" onclick="clearData()">Clear</button></div>
+                </div>
+                <div id="history"><div class="info-panel">No entries yet</div></div>
+            </div>
+        </div>
+
+        <!-- CLANS TAB -->
+        <div id="clans" class="tab-content">
+            <div class="alert alert-info">💡 Enter clan stats to compare</div>
+            <div class="card">
+                <div class="card-header"><span>➕</span><span class="card-title">ADD CLAN</span></div>
+                <div class="grid-2">
+                    <div>
+                        <div class="input-group"><label>Clan Name</label><input type="text" id="clanName" placeholder="Name"></div>
+                        <div class="input-row">
+                            <div class="input-group"><label>Total TH</label><input type="number" id="clanPower" value="10000"></div>
+                            <div class="input-group"><label>Members</label><input type="number" id="clanMembers" value="50"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="input-row">
+                            <div class="input-group"><label>Wins/Week</label><input type="number" id="clanWins" value="10"></div>
+                            <div class="input-group"><label>Rewards</label><input type="number" id="clanRewards" value="5000"></div>
+                        </div>
+                        <div class="input-group"><label>League</label>
+                            <select id="clanLeague"><option>Dune</option><option selected>Horizon</option><option>Eclipse</option><option>Odyssey</option></select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="addClan()">ADD</button>
+            </div>
+            <div class="card">
+                <div class="card-header" style="justify-content:space-between"><div style="display:flex;gap:10px"><span>⚔️</span><span class="card-title">COMPARISON</span></div>
+                    <button class="btn btn-secondary btn-sm" onclick="clearClans()">Clear</button>
+                </div>
+                <div id="clanList"><div class="info-panel">Add clans to compare</div></div>
+            </div>
+        </div>
+
+        <!-- DISCORD BOT TAB -->
+        <div id="discord" class="tab-content">
+            <div class="alert alert-success">🤖 Copy code to create your Discord bot!</div>
+            <div class="card">
+                <div class="card-header"><span>📋</span><span class="card-title">SETUP</span></div>
+                <div class="info-panel">
+                    <strong>1.</strong> Create bot at <a href="https://discord.com/developers" style="color:var(--accent-blue)">Discord Developer Portal</a><br>
+                    <strong>2.</strong> Run: <code>npm init -y && npm install discord.js node-fetch</code><br>
+                    <strong>3.</strong> Create <code>bot.js</code> with code below<br>
+                    <strong>4.</strong> Edit BOT_TOKEN and CHANNEL_ID<br>
+                    <strong>5.</strong> Run: <code>node bot.js</code>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" style="justify-content:space-between"><div style="display:flex;gap:10px"><span>💻</span><span class="card-title">BOT CODE</span></div>
+                    <button class="btn btn-secondary btn-sm" onclick="copyCode()">Copy</button>
+                </div>
+                <div class="code-block"><pre id="botCode">// Miner Wars Discord Bot
+const{Client,GatewayIntentBits,EmbedBuilder}=require('discord.js');
+const fetch=require('node-fetch');
+const CONFIG={BOT_TOKEN:'YOUR_TOKEN',CHANNEL:'YOUR_CHANNEL_ID'};
+const client=new Client({intents:[GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent]});
+let lastBlock=0,boost=null,ready=new Set();
+const getBlock=async()=>{try{return(await(await fetch('https://mempool.space/api/v1/blocks')).json())[0]}catch{return null}};
+const getPrice=async()=>{try{return await(await fetch('https://api.coingecko.com/api/v3/simple/price?ids=gomining-token,bitcoin&vs_currencies=usd&include_24hr_change=true')).json()}catch{return null}};
+async function check(){const b=await getBlock();if(!b)return;const ch=client.channels.cache.get(CONFIG.CHANNEL);if(b.height>lastBlock&&lastBlock>0&&ch)ch.send({content:'@here',embeds:[new EmbedBuilder().setColor(0x10B981).setTitle('⛏️ NEW BLOCK!').setDescription(`Block ${b.height} - New round!`)]});lastBlock=b.height}
+client.on('messageCreate',async m=>{if(m.author.bot||!m.content.startsWith('!'))return;const[c,...a]=m.content.slice(1).split(' ');
+if(c==='block'){const b=await getBlock();if(!b)return m.reply('❌');const t=((Date.now()-b.timestamp*1000)/60000).toFixed(1);m.reply({embeds:[new EmbedBuilder().setColor(0xFBBF24).setTitle('⏱️ Block').addFields({name:'Height',value:b.height.toString(),inline:true},{name:'Time',value:t+' min',inline:true},{name:'Status',value:t<5?'🟢':t<10?'🟡':'🔴',inline:true})]})}
+if(c==='price'){const p=await getPrice();if(!p)return m.reply('❌');const g=p['gomining-token'];m.reply(`💰 GMT: $${g.usd.toFixed(4)} (${g.usd_24h_change>=0?'+':''}${g.usd_24h_change.toFixed(2)}%) | BTC: $${p.bitcoin.usd.toLocaleString()}`)}
+if(c==='spell'){const b=await getBlock();if(!b)return;const t=(Date.now()-b.timestamp*1000)/60000;m.reply(t<3?'🚀 ROCKET - Max duration!':t<6?'🌀 ECHO - Good for long':t<10?'⚡ INSTANT - Safe':'🎯 FOCUS - Risky!')}
+if(c==='boost'){boost={m:a[0]||'x8'};ready.clear();ready.add(m.author.id);m.channel.send({content:'@here',embeds:[new EmbedBuilder().setColor(0x8B5CF6).setTitle('🚀 BOOST '+boost.m).setDescription('Type !ready to join')]})}
+if(c==='ready'){if(!boost)return m.reply('No session');ready.add(m.author.id);m.reply(`✅ ${ready.size} ready`)}
+if(c==='go'){if(!boost)return;m.channel.send(`@here 🔥 BOOST NOW! ${ready.size} GO!`);boost=null}
+if(c==='help')m.reply('!block !price !spell !boost !ready !go')});
+client.once('ready',()=>{console.log('⛏️ Online');setInterval(check,30000)});
+client.login(CONFIG.BOT_TOKEN);</pre></div>
+            </div>
+        </div>
+
+        <!-- STRATEGY TAB -->
+        <div id="strategy" class="tab-content">
+            <div class="card">
+                <div class="card-header"><span>🏆</span><span class="card-title">STRATEGIES BY LEAGUE</span></div>
+                <div class="strategy-box" style="border-color:var(--accent-gold)"><div class="strategy-title" style="color:var(--accent-gold)">🏜️ DUNE (&lt;150 TH)</div><div class="strategy-text">• Focus on passive blocks • ~75 TH = ~1 passive/week • Save tokens</div></div>
+                <div class="strategy-box" style="border-color:var(--accent-blue)"><div class="strategy-title" style="color:var(--accent-blue)">🌌 HORIZON (150-500 TH)</div><div class="strategy-text">• BEST reward ratio • Coordinate with clan • Target x8-x16</div></div>
+                <div class="strategy-box" style="border-color:var(--accent-purple)"><div class="strategy-title" style="color:var(--accent-purple)">🌒 ECLIPSE (500+ TH)</div><div class="strategy-text">• Mathematical approach • High coordination</div></div>
+                <div class="strategy-box" style="border-color:var(--accent-red)"><div class="strategy-title" style="color:var(--accent-red)">🏆 ODYSSEY</div><div class="strategy-text">• Whales only</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>⚠️</span><span class="card-title">WARNINGS</span></div>
+                <div class="alert alert-danger">🚨 If CLAN doesn't win, you have 0% personal chance!</div>
+                <div class="alert alert-danger">💸 Set a BUDGET!</div>
+                <div class="alert alert-success">🎯 Holy grail: Passive blocks!</div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>✅</span><span class="card-title">DAILY CHECKLIST</span></div>
+                <div class="checklist-item" onclick="this.querySelector('input').checked=!this.querySelector('input').checked"><input type="checkbox"><span>Click FREE Service Button</span></div>
+                <div class="checklist-item" onclick="this.querySelector('input').checked=!this.querySelector('input').checked"><input type="checkbox"><span>Check multiplier before boosting</span></div>
+                <div class="checklist-item" onclick="this.querySelector('input').checked=!this.querySelector('input').checked"><input type="checkbox"><span>Track spending</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let lastBlockTime=null,lastBlockHeight=0,soundEnabled=false,alertTriggered=false;
+        let gmtPrice=0.50,btcPrice=100000,selectedMult=2;
+        let trackerData=JSON.parse(localStorage.getItem('mwTracker')||'[]');
+        let clansData=JSON.parse(localStorage.getItem('mwClans')||'[]');
+        let priceAlerts={low:0.40,high:0.70};
+        let blockHistory=[];
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn=>{
+            btn.onclick=()=>{
+                document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            };
+        });
+
+        // Sound
+        document.getElementById('soundEnabled').onchange=e=>{soundEnabled=e.target.checked;if(soundEnabled)playSound();};
+        function playSound(){
+            if(!soundEnabled)return;
+            try{
+                const ctx=new(window.AudioContext||window.webkitAudioContext)();
+                const osc=ctx.createOscillator(),gain=ctx.createGain();
+                osc.connect(gain);gain.connect(ctx.destination);
+                osc.frequency.value=880;osc.type='sine';
+                gain.gain.setValueAtTime(0.3,ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);
+                osc.start();osc.stop(ctx.currentTime+0.5);
+            }catch(e){}
+        }
+
+        // Block Timer & Predictor
+        async function fetchBlocks(){
+            try{
+                const h=await(await fetch('https://mempool.space/api/blocks/tip/height')).text();
+                const height=parseInt(h);
+                if(lastBlockHeight>0&&height>lastBlockHeight){playSound();alertTriggered=false;}
+                document.getElementById('blockHeight').textContent=height.toLocaleString();
+                lastBlockHeight=height;
+
+                const blocks=await(await fetch('https://mempool.space/api/v1/blocks')).json();
+                if(blocks[0])lastBlockTime=blocks[0].timestamp*1000;
+                
+                // Store history for predictor
+                blockHistory=blocks.slice(0,20).map((b,i,arr)=>{
+                    if(i===arr.length-1)return null;
+                    return(b.timestamp-arr[i+1].timestamp)/60;
+                }).filter(t=>t!==null);
+                
+                updatePredictor();
+                renderBlockHistory();
+
+                const mempool=await(await fetch('https://mempool.space/api/mempool')).json();
+                document.getElementById('pendingTx').textContent=mempool.count?.toLocaleString()||'--';
+
+                const fees=await(await fetch('https://mempool.space/api/v1/fees/recommended')).json();
+                document.getElementById('feeRate').textContent=fees.fastestFee||'--';
+
+                const hr=await(await fetch('https://mempool.space/api/v1/mining/hashrate/3d')).json();
+                if(hr.currentHashrate)document.getElementById('hashRate').textContent=(hr.currentHashrate/1e18).toFixed(1)+' EH/s';
+            }catch(e){console.error(e);}
+        }
+
+        function updateTimer(){
+            if(!lastBlockTime)return;
+            const elapsed=Date.now()-lastBlockTime;
+            const mins=Math.floor(elapsed/60000),secs=Math.floor((elapsed%60000)/1000);
+            const timeEl=document.getElementById('timeSince');
+            timeEl.textContent=`${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+            timeEl.className='time-since'+(mins>=15?' danger':mins>=10?' warning':'');
+            
+            const status=document.getElementById('roundStatus');
+            if(mins<5){status.textContent='EARLY';status.className='timing-indicator timing-safe';}
+            else if(mins<10){status.textContent='MID';status.className='timing-indicator timing-caution';}
+            else if(mins<15){status.textContent='EXTENDED';status.className='timing-indicator timing-risky';}
+            else{status.textContent='LONG!';status.className='timing-indicator timing-danger';if(!alertTriggered&&soundEnabled){playSound();alertTriggered=true;}}
+            
+            document.getElementById('progressBar').style.width=Math.min(100,elapsed/(20*60000)*100)+'%';
+            
+            const rec=document.getElementById('spellRec');
+            if(mins<3)rec.innerHTML='<div class="alert alert-success">🚀 <strong>ROCKET/PPS</strong> - Max duration!</div>';
+            else if(mins<6)rec.innerHTML='<div class="alert alert-info">🌀 <strong>ECHO</strong> - Building value</div>';
+            else if(mins<10)rec.innerHTML='<div class="alert alert-warning">⚡ <strong>INSTANT</strong> - Safe choice</div>';
+            else rec.innerHTML='<div class="alert alert-danger">🎯 <strong>FOCUS</strong> - High risk/reward!</div>';
+        }
+
+        // PREDICTOR FUNCTIONS
+        function updatePredictor(){
+            if(blockHistory.length<5)return;
+            
+            const avg=blockHistory.reduce((a,b)=>a+b,0)/blockHistory.length;
+            const shortCount=blockHistory.filter(t=>t<5).length;
+            const longCount=blockHistory.filter(t=>t>12).length;
+            const normalCount=blockHistory.length-shortCount-longCount;
+            
+            const probShort=Math.round((shortCount/blockHistory.length)*100);
+            const probLong=Math.round((longCount/blockHistory.length)*100);
+            const probNormal=100-probShort-probLong;
+            
+            document.getElementById('probShort').textContent=probShort+'% chance';
+            document.getElementById('probMedium').textContent=probNormal+'% chance';
+            document.getElementById('probLong').textContent=probLong+'% chance';
+            
+            document.getElementById('barShort').style.width=Math.max(5,probShort)+'%';
+            document.getElementById('barShort').textContent=probShort>10?probShort+'%':'';
+            document.getElementById('barMedium').style.width=Math.max(5,probNormal)+'%';
+            document.getElementById('barMedium').textContent=probNormal>10?probNormal+'%':'';
+            document.getElementById('barLong').style.width=Math.max(5,probLong)+'%';
+            document.getElementById('barLong').textContent=probLong>10?probLong+'%':'';
+            
+            document.getElementById('recentAvg').textContent=avg.toFixed(1);
+            document.getElementById('avgBlockTime').textContent=avg.toFixed(1);
+            
+            // Mempool pressure (simplified)
+            const pendingTx=parseInt(document.getElementById('pendingTx').textContent.replace(/,/g,''))||0;
+            const pressure=pendingTx>50000?'HIGH':pendingTx>20000?'MEDIUM':'LOW';
+            document.getElementById('mempoolPressure').textContent=pressure;
+            
+            // Hash trend
+            const trend=avg<10?'⬆️ FAST':avg>12?'⬇️ SLOW':'➡️ NORMAL';
+            document.getElementById('hashTrend').textContent=trend;
+            
+            // Predicted time (simple exponential decay probability)
+            const elapsed=lastBlockTime?(Date.now()-lastBlockTime)/60000:0;
+            const remaining=Math.max(0,avg-elapsed);
+            document.getElementById('predictedTime').textContent=remaining<1?'SOON!':remaining.toFixed(0)+' min';
+            
+            // Strategy recommendation
+            updatePredictionStrategy(probShort,probNormal,probLong,avg,elapsed);
+        }
+
+        function updatePredictionStrategy(pShort,pNormal,pLong,avg,elapsed){
+            const el=document.getElementById('predictionStrategy');
+            let strategy='';
+            
+            if(pLong>=40){
+                strategy=`<div class="alert alert-danger">⚠️ <strong>HIGH LONG ROUND PROBABILITY (${pLong}%)</strong></div>
+                <div class="strategy-text">
+                    • Recent blocks are taking longer than usual<br>
+                    • <strong>ECHO boost</strong> is excellent choice - will build massive value<br>
+                    • <strong>Avoid FOCUS</strong> - too risky with long rounds likely<br>
+                    • Consider coordinated clan pushes on high multipliers
+                </div>`;
+            }else if(pShort>=40){
+                strategy=`<div class="alert alert-success">⚡ <strong>HIGH SHORT ROUND PROBABILITY (${pShort}%)</strong></div>
+                <div class="strategy-text">
+                    • Blocks are coming fast!<br>
+                    • <strong>INSTANT boost</strong> safest - guaranteed value before round ends<br>
+                    • <strong>FOCUS boost</strong> more viable - shorter rounds mean less risk<br>
+                    • Act fast - rounds ending quickly!
+                </div>`;
+            }else{
+                strategy=`<div class="alert alert-info">📊 <strong>NORMAL CONDITIONS (${pNormal}% normal rounds)</strong></div>
+                <div class="strategy-text">
+                    • Standard ~10 min block times<br>
+                    • <strong>ROCKET early</strong>, <strong>ECHO mid</strong>, <strong>INSTANT late</strong><br>
+                    • Follow standard spell timing guidelines<br>
+                    • Good conditions for coordinated boosts
+                </div>`;
+            }
+            
+            if(elapsed>avg*1.5){
+                strategy+=`<div class="alert alert-warning" style="margin-top:12px">⏰ Current round at ${elapsed.toFixed(1)} min - ${(elapsed/avg*100).toFixed(0)}% of average. Block likely soon!</div>`;
+            }
+            
+            el.innerHTML=strategy;
+        }
+
+        function renderBlockHistory(){
+            const container=document.getElementById('blockHistory');
+            if(blockHistory.length===0){container.innerHTML='<div class="info-panel">Loading history...</div>';return;}
+            
+            const maxTime=Math.max(...blockHistory,15);
+            let html='';
+            blockHistory.slice().reverse().forEach((time,i)=>{
+                const height=(time/maxTime)*100;
+                const cls=time<5?'short':time>12?'long':'medium';
+                html+=`<div class="history-bar ${cls}" style="height:${Math.max(5,height)}%" data-time="${time.toFixed(1)} min"></div>`;
+            });
+            container.innerHTML=html;
+        }
+
+        // Prices
+        async function fetchPrices(){
+            try{
+                const gmt=await(await fetch('https://api.coingecko.com/api/v3/simple/price?ids=gomining-token&vs_currencies=usd&include_24hr_change=true&include_24hr_high=true&include_24hr_low=true&include_24hr_vol=true')).json();
+                if(gmt['gomining-token']){
+                    const g=gmt['gomining-token'];
+                    gmtPrice=g.usd;
+                    document.getElementById('gmtPrice').textContent='$'+g.usd.toFixed(4);
+                    document.getElementById('gmtChange').textContent=(g.usd_24h_change>=0?'+':'')+(g.usd_24h_change||0).toFixed(2)+'%';
+                    document.getElementById('gmtChange').className='price-change '+(g.usd_24h_change>=0?'up':'down');
+                    document.getElementById('gmtHigh').textContent='$'+(g.usd_24h_high||g.usd).toFixed(4);
+                    document.getElementById('gmtLow').textContent='$'+(g.usd_24h_low||g.usd).toFixed(4);
+                    document.getElementById('gmtVol').textContent='$'+((g.usd_24h_vol||0)/1000).toFixed(0)+'K';
+                    document.getElementById('tokenPrice').value=g.usd.toFixed(4);
+                    checkPriceAlerts(g.usd);
+                }
+                const btc=await(await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_24hr_high=true&include_24hr_low=true')).json();
+                if(btc.bitcoin){
+                    const b=btc.bitcoin;
+                    btcPrice=b.usd;
+                    document.getElementById('btcPrice').textContent='$'+b.usd.toLocaleString();
+                    document.getElementById('btcChange').textContent=(b.usd_24h_change>=0?'+':'')+(b.usd_24h_change||0).toFixed(2)+'%';
+                    document.getElementById('btcChange').className='price-change '+(b.usd_24h_change>=0?'up':'down');
+                    document.getElementById('btcHigh').textContent='$'+(b.usd_24h_high||b.usd).toLocaleString();
+                    document.getElementById('btcLow').textContent='$'+(b.usd_24h_low||b.usd).toLocaleString();
+                }
+                const glob=await(await fetch('https://api.coingecko.com/api/v3/global')).json();
+                if(glob.data)document.getElementById('btcDom').textContent=glob.data.market_cap_percentage.btc.toFixed(1)+'%';
+            }catch(e){}
+        }
+
+        function checkPriceAlerts(price){
+            const el=document.getElementById('alertStatus');
+            if(price<=priceAlerts.low){el.innerHTML='<div class="alert alert-success">🔔 BUY OPPORTUNITY!</div>';if(soundEnabled)playSound();}
+            else if(price>=priceAlerts.high){el.innerHTML='<div class="alert alert-warning">🔔 Consider selling!</div>';if(soundEnabled)playSound();}
+        }
+        function setAlerts(){
+            priceAlerts.low=parseFloat(document.getElementById('alertLow').value)||0.40;
+            priceAlerts.high=parseFloat(document.getElementById('alertHigh').value)||0.70;
+            document.getElementById('alertStatus').innerHTML=`<div class="alert alert-info">✅ Alerts: Buy <$${priceAlerts.low}, Sell >$${priceAlerts.high}</div>`;
+        }
+
+        // ROI Calculator
+        document.querySelectorAll('.multiplier-btn').forEach(btn=>{
+            btn.onclick=()=>{
+                document.querySelectorAll('.multiplier-btn').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedMult=parseInt(btn.dataset.mult);
+            };
+        });
+
+        function calcROI(){
+            const yourTH=parseFloat(document.getElementById('yourTH').value)||50;
+            const clanTH=parseFloat(document.getElementById('clanTH').value)||5000;
+            const boostCost=parseFloat(document.getElementById('boostCost').value)||100;
+            const tokenPrice=parseFloat(document.getElementById('tokenPrice').value)||0.50;
+            const league=document.getElementById('yourLeague').value;
+            const diff={dune:1,horizon:0.7,eclipse:0.5,odyssey:0.3};
+            
+            const baseReward=296*selectedMult;
+            const baseProb=0.05*diff[league];
+            const boostEffect=boostCost/1000;
+            const winProb=Math.min(0.5,baseProb+boostEffect);
+            const expectedTokens=winProb*baseReward;
+            const ev=(expectedTokens*tokenPrice)-(boostCost*tokenPrice);
+            const roi=((expectedTokens-boostCost)/boostCost)*100;
+            const positive=ev>0;
+            
+            document.getElementById('roiResults').innerHTML=`
+                <div class="grid-3">
+                    <div class="stat-box"><div class="stat-value">${(winProb*100).toFixed(1)}%</div><div class="stat-label">WIN PROB</div></div>
+                    <div class="stat-box"><div class="stat-value">${baseReward}</div><div class="stat-label">POTENTIAL</div></div>
+                    <div class="stat-box"><div class="stat-value">${expectedTokens.toFixed(0)}</div><div class="stat-label">EXPECTED</div></div>
+                </div>
+                <div class="result-box ${positive?'positive':'negative'}">
+                    <div style="font-family:Orbitron;font-size:0.85rem;margin-bottom:8px">EXPECTED VALUE</div>
+                    <div class="result-value ${positive?'positive':'negative'}">${positive?'+':''}$${ev.toFixed(2)}</div>
+                    <div style="margin-top:8px;color:var(--text-secondary);font-size:0.75rem">ROI: ${roi.toFixed(1)}% | Cost: $${(boostCost*tokenPrice).toFixed(2)}</div>
+                </div>
+                <div class="strategy-box"><div class="strategy-title">📊 VERDICT</div><div class="strategy-text">${positive?'<span style="color:var(--accent-green)">✅ Positive EV</span>':'<span style="color:var(--accent-red)">⚠️ Negative EV</span>'}</div></div>`;
+        }
+
+        // Tracker
+        function addEntry(){
+            const type=document.getElementById('entryType').value;
+            const amt=parseFloat(document.getElementById('entryAmt').value)||0;
+            if(amt<=0)return alert('Enter amount');
+            trackerData.unshift({id:Date.now(),date:new Date().toISOString(),type,amount:amt,mult:document.getElementById('entryMult').value,notes:document.getElementById('entryNotes').value});
+            localStorage.setItem('mwTracker',JSON.stringify(trackerData));
+            document.getElementById('entryAmt').value='';
+            document.getElementById('entryNotes').value='';
+            updateTracker();
+        }
+
+        function updateTracker(){
+            const week=Date.now()-7*24*60*60*1000;
+            let wkS=0,wkE=0,wkB=0;
+            trackerData.filter(e=>new Date(e.date).getTime()>week).forEach(e=>{
+                if(e.type==='spent')wkS+=e.amount;
+                else if(e.type==='earned')wkE+=e.amount;
+                else wkB+=e.amount;
+            });
+            document.getElementById('wkSpent').textContent=wkS.toFixed(0)+' GMT';
+            document.getElementById('wkEarned').textContent=wkE.toFixed(0)+' GMT';
+            document.getElementById('wkBTC').textContent=wkB.toFixed(8)+' BTC';
+            const net=wkE-wkS;
+            document.getElementById('wkNet').textContent=(net>=0?'+':'')+net.toFixed(0)+' GMT';
+            document.getElementById('wkNet').className='stat-value '+(net>=0?'positive':'negative');
+            
+            if(!trackerData.length){document.getElementById('history').innerHTML='<div class="info-panel">No entries</div>';return;}
+            let html='';
+            trackerData.slice(0,12).forEach(e=>{
+                const icon=e.type==='spent'?'🔴':e.type==='earned'?'🟢':'₿';
+                html+=`<div class="tracker-entry"><span style="min-width:65px;font-size:0.65rem;color:var(--text-secondary)">${new Date(e.date).toLocaleDateString()}</span><span>${icon}</span><span class="amount ${e.type==='spent'?'spent':'earned'}">${e.type==='btc'?e.amount.toFixed(8)+' BTC':e.amount+' GMT'}</span><span style="flex:1;font-size:0.65rem;color:var(--text-secondary)">${e.mult} ${e.notes||''}</span><button class="btn btn-danger btn-sm" onclick="delEntry(${e.id})">×</button></div>`;
+            });
+            document.getElementById('history').innerHTML=html;
+        }
+        function delEntry(id){trackerData=trackerData.filter(e=>e.id!==id);localStorage.setItem('mwTracker',JSON.stringify(trackerData));updateTracker();}
+        function exportData(){
+            const blob=new Blob([JSON.stringify(trackerData,null,2)],{type:'application/json'});
+            const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+            a.download='miner-wars-'+new Date().toISOString().split('T')[0]+'.json';a.click();
+        }
+        function clearData(){if(confirm('Delete ALL?')){trackerData=[];localStorage.removeItem('mwTracker');updateTracker();}}
+
+        // Clans
+        function addClan(){
+            const clan={
+                id:Date.now(),
+                name:document.getElementById('clanName').value||'Unnamed',
+                power:parseFloat(document.getElementById('clanPower').value)||1000,
+                members:parseInt(document.getElementById('clanMembers').value)||10,
+                wins:parseInt(document.getElementById('clanWins').value)||0,
+                rewards:parseFloat(document.getElementById('clanRewards').value)||0,
+                league:document.getElementById('clanLeague').value
+            };
+            clan.thPerMember=clan.power/clan.members;
+            clan.rewardPerTH=clan.rewards/clan.power;
+            clan.score=clan.wins*10+clan.thPerMember*0.1+clan.rewardPerTH*100;
+            clansData.push(clan);
+            localStorage.setItem('mwClans',JSON.stringify(clansData));
+            document.getElementById('clanName').value='';
+            updateClans();
+        }
+        function updateClans(){
+            if(!clansData.length){document.getElementById('clanList').innerHTML='<div class="info-panel">Add clans</div>';return;}
+            const sorted=[...clansData].sort((a,b)=>b.score-a.score);
+            let html='<div class="grid-2">';
+            sorted.forEach((c,i)=>{
+                html+=`<div class="clan-card${i===0&&sorted.length>1?' recommended':''}"><div class="clan-name">${i===0&&sorted.length>1?'⭐ ':''}${c.name}</div><div class="clan-stats">
+                    <div class="clan-stat"><div class="clan-stat-value">${c.power.toLocaleString()}</div><div class="clan-stat-label">TH</div></div>
+                    <div class="clan-stat"><div class="clan-stat-value">${c.members}</div><div class="clan-stat-label">MEMBERS</div></div>
+                    <div class="clan-stat"><div class="clan-stat-value">${c.thPerMember.toFixed(0)}</div><div class="clan-stat-label">TH/MBR</div></div>
+                    <div class="clan-stat"><div class="clan-stat-value">${c.wins}</div><div class="clan-stat-label">WINS</div></div>
+                </div><button class="btn btn-danger btn-sm btn-block" style="margin-top:12px" onclick="delClan(${c.id})">Remove</button></div>`;
+            });
+            html+='</div>';
+            document.getElementById('clanList').innerHTML=html;
+        }
+        function delClan(id){clansData=clansData.filter(c=>c.id!==id);localStorage.setItem('mwClans',JSON.stringify(clansData));updateClans();}
+        function clearClans(){if(confirm('Clear?')){clansData=[];localStorage.removeItem('mwClans');updateClans();}}
+
+        function copyCode(){navigator.clipboard.writeText(document.getElementById('botCode').innerText).then(()=>alert('Copied!'));}
+
+        // Init
+        fetchBlocks();fetchPrices();updateTracker();updateClans();
+        setInterval(fetchBlocks,30000);
+        setInterval(updateTimer,1000);
+        setInterval(fetchPrices,60000);
+    </script>
+</body>
+</html>
