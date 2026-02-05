@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⛏️ Miner Wars Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#06080d;--panel:#0d1117;--card:#161b22;--raised:#1c2333;
+  --gold:#e8b931;--gold-dim:#a07d1c;--amber:#f59e0b;
+  --green:#22c55e;--green-dim:#15803d;--red:#ef4444;--red-dim:#991b1b;
+  --blue:#3b82f6;--purple:#a78bfa;--cyan:#22d3ee;
+  --txt:#e6edf3;--txt-dim:#7d8590;--txt-mute:#484f58;
+  --border:#30363d;--glow:0 0 20px rgba(232,185,49,.15);
+  --font-head:'Chakra Petch',sans-serif;--font-mono:'IBM Plex Mono',monospace;
+}
+html{background:var(--void);color:var(--txt);font-family:var(--font-mono);font-size:14px;scroll-behavior:smooth}
+body{min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.hdr{background:linear-gradient(180deg,var(--panel),var(--void));border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.hdr-title{font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--gold);letter-spacing:1px;display:flex;align-items:center;gap:10px}
+.hdr-title span{font-size:1.6rem}
+.hdr-status{display:flex;align-items:center;gap:16px;font-size:.85rem}
+.hdr-pill{padding:4px 12px;border-radius:20px;font-weight:600;font-size:.75rem;letter-spacing:.5px}
+.pill-live{background:rgba(34,197,94,.15);color:var(--green);border:1px solid var(--green-dim);animation:pulse-green 2s infinite}
+.pill-off{background:rgba(239,68,68,.15);color:var(--red);border:1px solid var(--red-dim)}
+@keyframes pulse-green{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* TABS */
+.tabs{display:flex;gap:2px;padding:0 20px;background:var(--panel);border-bottom:1px solid var(--border)}
+.tab{padding:10px 20px;cursor:pointer;font-family:var(--font-head);font-weight:600;font-size:.9rem;color:var(--txt-dim);border-bottom:2px solid transparent;transition:all .2s;user-select:none}
+.tab:hover{color:var(--txt);background:rgba(255,255,255,.03)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(232,185,49,.05)}
+
+/* PANELS */
+.panels{padding:20px;max-width:1400px;margin:0 auto}
+.pn{display:none}.pn.active{display:block}
+
+/* CARDS & GRID */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+@media(min-width:901px) and (max-width:1200px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .3s}
+.card:hover{border-color:var(--txt-mute)}
+.card-hd{font-family:var(--font-head);font-weight:700;font-size:.85rem;color:var(--gold);letter-spacing:.5px;margin-bottom:12px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.card-hd .ico{font-size:1.1rem}
+
+/* STAT BOXES */
+.stat{text-align:center;padding:12px 8px}
+.stat-val{font-family:var(--font-head);font-size:1.8rem;font-weight:700;line-height:1.2}
+.stat-lbl{font-size:.7rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.c-gold{color:var(--gold)}.c-green{color:var(--green)}.c-red{color:var(--red)}.c-blue{color:var(--blue)}.c-amber{color:var(--amber)}.c-purple{color:var(--purple)}.c-cyan{color:var(--cyan)}
+
+/* TIMER */
+.timer-wrap{text-align:center;padding:20px}
+.timer-val{font-family:var(--font-head);font-size:3.5rem;font-weight:700;letter-spacing:2px;transition:color .5s}
+.timer-lbl{font-size:.75rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.timer-green{color:var(--green)}.timer-amber{color:var(--amber)}.timer-red{color:var(--red)}
+.timer-critical{color:var(--red);animation:blink .5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* HEATMAP */
+.heatmap{display:grid;grid-template-columns:repeat(24,1fr);gap:2px}
+.hm-cell{aspect-ratio:1;border-radius:3px;position:relative;cursor:default;transition:transform .2s}
+.hm-cell:hover{transform:scale(1.3);z-index:2}
+.hm-cell .tip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--raised);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.65rem;white-space:nowrap;z-index:10;color:var(--txt)}
+.hm-cell:hover .tip{display:block}
+.hm-lbl{font-size:.55rem;color:var(--txt-mute);text-align:center;margin-top:2px}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;max-height:300px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{text-align:left;padding:8px 10px;color:var(--gold-dim);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:1}
+td{padding:6px 10px;border-bottom:1px solid rgba(48,54,61,.5);color:var(--txt-dim)}
+tr:hover td{color:var(--txt);background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:600}
+.badge-fast{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-normal{background:rgba(59,130,246,.15);color:var(--blue)}
+.badge-long{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge-vlong{background:rgba(239,68,68,.15);color:var(--red)}
+
+/* REGIONS */
+.region{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;background:var(--raised);margin-bottom:6px;transition:background .2s}
+.region:hover{background:rgba(255,255,255,.05)}
+.region-name{font-weight:600;font-size:.85rem;min-width:120px}
+.region-time{font-family:var(--font-mono);color:var(--cyan);font-size:.85rem;min-width:70px}
+.region-status{font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:12px;min-width:70px;text-align:center}
+.status-sleep{background:rgba(59,130,246,.15);color:var(--blue)}
+.status-waking{background:rgba(167,139,250,.15);color:var(--purple)}
+.status-peak{background:rgba(239,68,68,.15);color:var(--red)}
+.status-low{background:rgba(34,197,94,.15);color:var(--green)}
+.region-pct{color:var(--txt-mute);font-size:.75rem;min-width:40px;text-align:right}
+
+/* PRESSURE GAUGE */
+.gauge-wrap{text-align:center;padding:10px}
+.gauge-bar{height:16px;background:var(--raised);border-radius:8px;overflow:hidden;margin:8px 0}
+.gauge-fill{height:100%;border-radius:8px;transition:width .8s ease,background .5s}
+.gauge-val{font-family:var(--font-head);font-size:2rem;font-weight:700}
+.gauge-lbl{font-size:.7rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:1px}
+
+/* WINDOWS (boost timing) */
+.window{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:var(--raised);margin-bottom:6px;border-left:3px solid var(--green)}
+.window-rank{font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:var(--gold);min-width:30px}
+.window-time{font-weight:600;font-size:.9rem}
+.window-score{font-size:.75rem;color:var(--green);margin-left:auto}
+
+/* CHART (canvas wrapper) */
+.chart-box{position:relative;width:100%;height:200px}
+.chart-box canvas{width:100%!important;height:100%!important}
+
+/* BUTTONS */
+.btn{padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:var(--txt);font-family:var(--font-mono);font-size:.8rem;cursor:pointer;transition:all .2s}
+.btn:hover{background:var(--card);border-color:var(--gold-dim)}
+.btn-gold{background:rgba(232,185,49,.15);border-color:var(--gold-dim);color:var(--gold)}
+.btn-gold:hover{background:rgba(232,185,49,.25)}
+.btn-sm{padding:4px 10px;font-size:.7rem}
+
+/* FILTER PILLS */
+.filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.fpill{padding:4px 12px;border-radius:14px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--txt-dim);transition:all .2s}
+.fpill.active{background:rgba(232,185,49,.15);border-color:var(--gold-dim);color:var(--gold)}
+
+/* LEADERBOARD INPUT */
+.lb-form{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end}
+.lb-form label{font-size:.65rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px}
+.lb-form input,.lb-form select{background:var(--raised);border:1px solid var(--border);color:var(--txt);padding:6px 10px;border-radius:6px;font-family:var(--font-mono);font-size:.8rem;width:100%}
+.lb-form input:focus,.lb-form select:focus{outline:none;border-color:var(--gold-dim)}
+.lb-field{flex:1;min-width:100px}
+
+/* LB BARS */
+.lb-bar-wrap{margin-bottom:8px}
+.lb-bar-label{display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:3px}
+.lb-bar{height:22px;background:var(--raised);border-radius:4px;overflow:hidden}
+.lb-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:.65rem;font-weight:600;color:var(--void);transition:width .6s ease}
+.lb-mine{background:linear-gradient(90deg,var(--gold),var(--amber))}
+.lb-other{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+
+/* STRATEGY BOX */
+.strat-box{background:var(--raised);border:1px solid var(--gold-dim);border-radius:10px;padding:16px;margin-top:12px}
+.strat-title{font-family:var(--font-head);font-weight:700;color:var(--gold);margin-bottom:8px;font-size:.9rem}
+.strat-item{padding:6px 0;border-bottom:1px solid rgba(48,54,61,.5);font-size:.82rem;color:var(--txt-dim);line-height:1.5}
+.strat-item:last-child{border-bottom:none}
+.strat-item strong{color:var(--txt)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--void)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--txt-mute)}
+
+/* ANIMATION */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s ease forwards}
+</style>
+</head>
+<body>
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-title"><span>⛏️</span> Miner Wars Command Center</div>
+  <div class="hdr-status">
+    <span id="blockHeight" style="color:var(--cyan)">Block: ---</span>
+    <span id="connStatus" class="hdr-pill pill-off">OFFLINE</span>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs">
+  <div class="tab active" data-tab="dash" onclick="switchTab('dash')">📊 Dashboard</div>
+  <div class="tab" data-tab="regions" onclick="switchTab('regions')">🌍 Regions</div>
+  <div class="tab" data-tab="history" onclick="switchTab('history')">📜 History</div>
+  <div class="tab" data-tab="leader" onclick="switchTab('leader')">🏆 Leaderboard</div>
+</nav>
+
+<!-- ==================== DASHBOARD ==================== -->
+<div class="panels">
+<div class="pn active" id="pn-dash">
+  <!-- Row 1: Timer + Stats -->
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card" style="grid-column:span 1">
+      <div class="card-hd"><span class="ico">⏱️</span> Round Timer</div>
+      <div class="timer-wrap">
+        <div class="timer-val timer-green" id="timerVal">00:00</div>
+        <div class="timer-lbl" id="timerLbl">Since last block</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="ico">📈</span> Session Stats</div>
+      <div class="grid g2">
+        <div class="stat"><div class="stat-val c-cyan" id="statBlocks">0</div><div class="stat-lbl">Blocks Seen</div></div>
+        <div class="stat"><div class="stat-val c-amber" id="statAvg">--</div><div class="stat-lbl">Avg Block Time</div></div>
+        <div class="stat"><div class="stat-val c-green" id="statFast">0</div><div class="stat-lbl">Fast (&lt;5m)</div></div>
+        <div class="stat"><div class="stat-val c-red" id="statLong">0</div><div class="stat-lbl">Long (&gt;15m)</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="ico">🎯</span> Current Conditions</div>
+      <div class="grid g2">
+        <div class="stat"><div class="stat-val c-gold" id="compLevel">--</div><div class="stat-lbl">Competition</div></div>
+        <div class="stat"><div class="stat-val c-purple" id="nextWindow">--</div><div class="stat-lbl">Next Low Window</div></div>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <span class="badge" id="compBadge" style="font-size:.75rem">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Heatmap -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd"><span class="ico">🔥</span> 24-Hour Activity Heatmap (UTC)</div>
+    <div class="heatmap" id="heatmap"></div>
+    <div class="heatmap" id="heatmapLabels" style="margin-top:0"></div>
+  </div>
+
+  <!-- Row 3: Recent blocks + Strategy -->
+  <div class="grid g2">
+    <div class="card">
+      <div class="card-hd"><span class="ico">⛓️</span> Recent Blocks</div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Height</th><th>Time</th><th>Duration</th><th>Type</th></tr></thead>
+        <tbody id="blocksTable"></tbody></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="ico">🧠</span> Strategy Engine</div>
+      <div class="strat-box" id="strategyBox">
+        <div class="strat-title">⏳ Analyzing conditions...</div>
+        <div class="strat-item">Waiting for data...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== REGIONS ==================== -->
+<div class="pn" id="pn-regions">
+  <!-- Pressure gauge + Windows -->
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-hd"><span class="ico">🌡️</span> Competition Pressure</div>
+      <div class="gauge-wrap">
+        <div class="gauge-val c-amber" id="gaugeVal">--%</div>
+        <div class="gauge-bar"><div class="gauge-fill" id="gaugeFill" style="width:0%;background:var(--green)"></div></div>
+        <div class="gauge-lbl" id="gaugeLbl">Calculating...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="ico">🕐</span> Best Boost Windows (Next 12h)</div>
+      <div id="boostWindows"></div>
+    </div>
+  </div>
+
+  <!-- Region list -->
+  <div class="card">
+    <div class="card-hd"><span class="ico">🌍</span> Player Regions</div>
+    <div id="regionList"></div>
+  </div>
+</div>
+
+<!-- ==================== HISTORY ==================== -->
+<div class="pn" id="pn-history">
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd" style="justify-content:space-between">
+      <span><span class="ico">📜</span> Block History Log</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" onclick="exportHistory()">📥 Export CSV</button>
+        <button class="btn btn-sm" onclick="clearHistory()" style="color:var(--red)">🗑️ Clear</button>
+      </div>
+    </div>
+    <div class="filters" id="histFilters">
+      <div class="fpill active" data-filter="all" onclick="filterHistory('all')">All</div>
+      <div class="fpill" data-filter="fast" onclick="filterHistory('fast')">⚡ Fast</div>
+      <div class="fpill" data-filter="normal" onclick="filterHistory('normal')">✅ Normal</div>
+      <div class="fpill" data-filter="long" onclick="filterHistory('long')">🔶 Long</div>
+      <div class="fpill" data-filter="vlong" onclick="filterHistory('vlong')">🔴 Very Long</div>
+    </div>
+    <div id="histCount" style="font-size:.7rem;color:var(--txt-mute);margin-bottom:8px">0 entries</div>
+    <div class="tbl-wrap" style="max-height:350px">
+      <table><thead><tr><th>Height</th><th>Timestamp</th><th>Duration</th><th>Type</th><th>Pool</th></tr></thead>
+      <tbody id="histTable"></tbody></table>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid g2">
+    <div class="card">
+      <div class="card-hd"><span class="ico">📊</span> Duration Distribution</div>
+      <div class="chart-box"><canvas id="distChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="ico">📉</span> Hourly Avg Block Time</div>
+      <div class="chart-box"><canvas id="hourlyChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== LEADERBOARD ==================== -->
+<div class="pn" id="pn-leader">
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd"><span class="ico">➕</span> Add Clan</div>
+    <div class="lb-form" id="lbForm">
+      <div class="lb-field"><label>Clan Name</label><input id="lbName" placeholder="e.g. GravitationaL"></div>
+      <div class="lb-field"><label>TH/s</label><input id="lbTh" type="number" placeholder="19378"></div>
+      <div class="lb-field"><label>Members</label><input id="lbMembers" type="number" placeholder="49"></div>
+      <div class="lb-field"><label>League</label>
+        <select id="lbLeague"><option>Odyssey</option><option>Voyager</option><option>Pioneer</option><option>Legend</option></select>
+      </div>
+      <div class="lb-field"><label>Blocks Won</label><input id="lbBlocksWon" type="number" placeholder="0"></div>
+      <div class="lb-field" style="display:flex;align-items:flex-end;gap:6px">
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="lbMine"> My Clan</label>
+        <button class="btn btn-gold" onclick="addClan()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <div class="card-hd" style="justify-content:space-between">
+        <span><span class="ico">🏆</span> Clan Comparison</span>
+        <button class="btn btn-sm" onclick="exportLeaderboard()">📥 CSV</button>
+        <button class="btn btn-sm" onclick="resetClans()" style="color:var(--amber)">🔄 Reset</button>
+      </div>
+      <div id="lbBars"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="ico">📐</span> Competitive Analysis</div>
+      <div id="lbAnalysis"><p style="color:var(--txt-dim);font-size:.82rem">Add at least 2 clans to see analysis.</p></div>
+    </div>
+  </div>
+
+  <!-- LB Table -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-hd"><span class="ico">📋</span> Clan Data</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th></th><th>Clan</th><th>TH/s</th><th>Members</th><th>League</th><th>Blocks Won</th><th>TH/Member</th><th>Actions</th></tr></thead>
+      <tbody id="lbTable"></tbody></table>
+    </div>
+  </div>
+</div>
+
+</div><!-- end panels -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ============================================================
+// CONSTANTS & CONFIG
+// ============================================================
+const REGIONS = [
+  { name: 'Russia / CIS',    pct: 40, tz: 3,  emoji: '🇷🇺' },
+  { name: 'Europe',          pct: 25, tz: 1,  emoji: '🇪🇺' },
+  { name: 'US East',         pct: 12, tz: -5, emoji: '🇺🇸' },
+  { name: 'US West',         pct: 8,  tz: -8, emoji: '🇺🇸' },
+  { name: 'Asia',            pct: 5,  tz: 8,  emoji: '🌏' },
+  { name: 'South America',   pct: 5,  tz: -3, emoji: '🌎' },
+  { name: 'Rest of World',   pct: 5,  tz: 5,  emoji: '🌐' }
+];
+
+// Hourly competition model (0-23 UTC), estimated % of playerbase active
+const HOURLY_ACTIVITY = [
+  30, 25, 22, 20, 18, 20, 25, 35, 45, 55, 65, 75,
+  80, 78, 75, 70, 68, 65, 60, 55, 50, 45, 40, 35
+];
+
+const BLOCK_TYPES = {
+  fast:   { max: 300,  label: 'Fast',      badge: 'badge-fast',   emoji: '⚡' },
+  normal: { max: 900,  label: 'Normal',    badge: 'badge-normal', emoji: '✅' },
+  long:   { max: 1200, label: 'Long',      badge: 'badge-long',   emoji: '🔶' },
+  vlong:  { max: Infinity, label: 'Very Long', badge: 'badge-vlong', emoji: '🔴' }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let ws = null;
+let wsRetries = 0;
+let lastBlockTime = null;
+let timerInterval = null;
+let sessionBlocks = [];
+let historyLog = JSON.parse(localStorage.getItem('mw_history') || '[]');
+const DEFAULT_CLANS = [
+  { name: 'DOGE', th: 304213.80, members: 0, league: 'Legend', blocksWon: 135, mine: false },
+  { name: 'Blockaholics', th: 56597.48, members: 0, league: 'Legend', blocksWon: 134, mine: false },
+  { name: 'Wagmington', th: 296868.23, members: 0, league: 'Legend', blocksWon: 88, mine: false },
+  { name: 'MineBitcoin.club', th: 304957.16, members: 0, league: 'Legend', blocksWon: 61, mine: false },
+  { name: 'The Deep End', th: 54362.62, members: 0, league: 'Legend', blocksWon: 53, mine: false },
+  { name: 'BIT TITANS', th: 4207.96, members: 0, league: 'Odyssey', blocksWon: 29, mine: false },
+  { name: 'ArcticMonkeys', th: 102482.05, members: 0, league: 'Legend', blocksWon: 23, mine: false },
+  { name: 'MineBitcoin.PRO', th: 42466.57, members: 0, league: 'Legend', blocksWon: 15, mine: false },
+  { name: 'Bitcoin Sniper', th: 52427.42, members: 0, league: 'Legend', blocksWon: 10, mine: false },
+  { name: 'Pick TEAM', th: 5352.43, members: 0, league: 'Odyssey', blocksWon: 10, mine: false },
+  { name: 'Rainbow Land', th: 19115.57, members: 0, league: 'Odyssey', blocksWon: 9, mine: false },
+  { name: 'GravitationaL', th: 20624.63, members: 49, league: 'Odyssey', blocksWon: 8, mine: true },
+  { name: 'Mineami', th: 14835.15, members: 0, league: 'Odyssey', blocksWon: 8, mine: false },
+  { name: 'BLOCKPOWER', th: 41044.32, members: 0, league: 'Legend', blocksWon: 6, mine: false },
+  { name: 'Aura Miners', th: 7861.09, members: 0, league: 'Odyssey', blocksWon: 6, mine: false },
+  { name: '20w Syndicate', th: 16715.55, members: 0, league: 'Odyssey', blocksWon: 5, mine: false },
+  { name: 'Mega Pool', th: 15013.45, members: 0, league: 'Odyssey', blocksWon: 4, mine: false }
+];
+const MW_DATA_VERSION = 2;
+let _stored = JSON.parse(localStorage.getItem('mw_clans') || 'null');
+let _ver = parseInt(localStorage.getItem('mw_clans_ver') || '0');
+let clans;
+if (_ver < MW_DATA_VERSION || !Array.isArray(_stored) || _stored.length === 0) {
+  clans = JSON.parse(JSON.stringify(DEFAULT_CLANS));
+  try { localStorage.setItem('mw_clans', JSON.stringify(clans)); localStorage.setItem('mw_clans_ver', String(MW_DATA_VERSION)); } catch(e) {}
+} else {
+  clans = _stored;
+}
+let distChartInst = null;
+let hourlyChartInst = null;
+let currentFilter = 'all';
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+function fmtTime(sec) {
+  if (sec == null || isNaN(sec)) return '--:--';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function fmtDuration(sec) {
+  if (sec < 60) return `${sec}s`;
+  if (sec < 3600) return `${Math.floor(sec/60)}m ${sec%60}s`;
+  return `${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`;
+}
+
+function getBlockType(durationSec) {
+  if (durationSec <= BLOCK_TYPES.fast.max) return 'fast';
+  if (durationSec <= BLOCK_TYPES.normal.max) return 'normal';
+  if (durationSec <= BLOCK_TYPES.long.max) return 'long';
+  return 'vlong';
+}
+
+function utcHour() { return new Date().getUTCHours(); }
+
+function localTimeForTz(offsetHrs) {
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+  const local = new Date(utcMs + offsetHrs * 3600000);
+  return local.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function getRegionStatus(offsetHrs) {
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+  const localH = new Date(utcMs + offsetHrs * 3600000).getHours();
+  if (localH >= 0 && localH < 6) return { label: '😴 Sleep', cls: 'status-sleep' };
+  if (localH >= 6 && localH < 9) return { label: '🌅 Waking', cls: 'status-waking' };
+  if (localH >= 9 && localH < 13) return { label: '🔴 Peak', cls: 'status-peak' };
+  if (localH >= 13 && localH < 17) return { label: '🔶 Active', cls: 'status-peak' };
+  if (localH >= 17 && localH < 21) return { label: '📉 Winding', cls: 'status-low' };
+  return { label: '🌙 Low', cls: 'status-low' };
+}
+
+function getCompetitionForHour(h) { return HOURLY_ACTIVITY[h]; }
+
+function downloadFile(name, content) {
+  const blob = new Blob([content], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.pn').forEach(p => p.classList.toggle('active', p.id === 'pn-' + id));
+  if (id === 'history') renderHistoryCharts();
+  if (id === 'regions') updateRegions();
+}
+
+// ============================================================
+// HEATMAP
+// ============================================================
+function buildHeatmap() {
+  const hm = document.getElementById('heatmap');
+  const lbls = document.getElementById('heatmapLabels');
+  hm.innerHTML = '';
+  lbls.innerHTML = '';
+  const nowH = utcHour();
+  for (let h = 0; h < 24; h++) {
+    const act = HOURLY_ACTIVITY[h];
+    let bg;
+    if (act < 30) bg = 'rgba(34,197,94,.5)';
+    else if (act < 50) bg = 'rgba(34,197,94,.3)';
+    else if (act < 65) bg = 'rgba(245,158,11,.4)';
+    else if (act < 75) bg = 'rgba(239,68,68,.35)';
+    else bg = 'rgba(239,68,68,.6)';
+    const border = h === nowH ? '2px solid var(--gold)' : '1px solid rgba(48,54,61,.5)';
+    const cell = document.createElement('div');
+    cell.className = 'hm-cell';
+    cell.style.cssText = `background:${bg};border:${border}`;
+    cell.innerHTML = `<span class="tip">${String(h).padStart(2,'0')}:00 UTC — ${act}% active</span>`;
+    hm.appendChild(cell);
+    const lbl = document.createElement('div');
+    lbl.className = 'hm-lbl';
+    lbl.textContent = h % 3 === 0 ? `${String(h).padStart(2,'0')}` : '';
+    lbls.appendChild(lbl);
+  }
+}
+
+// ============================================================
+// REGIONS
+// ============================================================
+function updateRegions() {
+  const list = document.getElementById('regionList');
+  if (!list) return;
+  list.innerHTML = '';
+  REGIONS.forEach(r => {
+    const st = getRegionStatus(r.tz);
+    const div = document.createElement('div');
+    div.className = 'region';
+    div.innerHTML = `
+      <span class="region-name">${r.emoji} ${r.name}</span>
+      <span class="region-time">${localTimeForTz(r.tz)}</span>
+      <span class="region-status ${st.cls}">${st.label}</span>
+      <span class="region-pct">${r.pct}%</span>`;
+    list.appendChild(div);
+  });
+  updateGauge();
+  updateBoostWindows();
+}
+
+function updateGauge() {
+  const h = utcHour();
+  const pct = HOURLY_ACTIVITY[h];
+  const el = document.getElementById('gaugeVal');
+  const fill = document.getElementById('gaugeFill');
+  const lbl = document.getElementById('gaugeLbl');
+  if (!el) return;
+  el.textContent = pct + '%';
+  fill.style.width = pct + '%';
+  if (pct < 35) { fill.style.background = 'var(--green)'; el.className = 'gauge-val c-green'; lbl.textContent = 'Low competition — great time to boost!'; }
+  else if (pct < 55) { fill.style.background = 'var(--blue)'; el.className = 'gauge-val c-blue'; lbl.textContent = 'Moderate competition'; }
+  else if (pct < 70) { fill.style.background = 'var(--amber)'; el.className = 'gauge-val c-amber'; lbl.textContent = 'Above average competition'; }
+  else { fill.style.background = 'var(--red)'; el.className = 'gauge-val c-red'; lbl.textContent = 'High competition — consider waiting'; }
+}
+
+function updateBoostWindows() {
+  const box = document.getElementById('boostWindows');
+  if (!box) return;
+  const nowH = utcHour();
+  const windows = [];
+  for (let i = 0; i < 12; i++) {
+    const h = (nowH + i) % 24;
+    windows.push({ hour: h, score: HOURLY_ACTIVITY[h] });
+  }
+  windows.sort((a, b) => a.score - b.score);
+  box.innerHTML = '';
+  windows.slice(0, 4).forEach((w, i) => {
+    const div = document.createElement('div');
+    div.className = 'window';
+    div.innerHTML = `
+      <span class="window-rank">#${i + 1}</span>
+      <span class="window-time">${String(w.hour).padStart(2,'0')}:00 — ${String((w.hour+1)%24).padStart(2,'0')}:00 UTC</span>
+      <span class="window-score">${w.score}% active</span>`;
+    box.appendChild(div);
+  });
+}
+</script>
+<script>
+// ============================================================
+// WEBSOCKET - MEMPOOL.SPACE
+// ============================================================
+function connectWS() {
+  if (ws && ws.readyState <= 1) return;
+  try {
+    ws = new WebSocket('wss://mempool.space/api/v1/ws');
+    ws.onopen = () => {
+      wsRetries = 0;
+      document.getElementById('connStatus').className = 'hdr-pill pill-live';
+      document.getElementById('connStatus').textContent = 'LIVE';
+      ws.send(JSON.stringify({ action: 'want', data: ['blocks'] }));
+    };
+    ws.onmessage = (evt) => {
+      try {
+        const data = JSON.parse(evt.data);
+        if (data.block) processBlock(data.block);
+      } catch (e) { /* ignore parse errors */ }
+    };
+    ws.onclose = () => {
+      document.getElementById('connStatus').className = 'hdr-pill pill-off';
+      document.getElementById('connStatus').textContent = 'OFFLINE';
+      wsRetries++;
+      setTimeout(connectWS, Math.min(wsRetries * 3000, 30000));
+    };
+    ws.onerror = () => { ws.close(); };
+  } catch (e) {
+    setTimeout(connectWS, 5000);
+  }
+}
+
+// ============================================================
+// PROCESS INCOMING BLOCK
+// ============================================================
+function processBlock(block) {
+  const now = Math.floor(Date.now() / 1000);
+  let duration = null;
+  if (lastBlockTime) {
+    duration = now - lastBlockTime;
+  }
+  lastBlockTime = now;
+
+  // Update header
+  document.getElementById('blockHeight').textContent = 'Block: ' + (block.height || '---').toLocaleString();
+
+  // Reset timer
+  startTimer();
+
+  // Add to session
+  const entry = {
+    height: block.height,
+    timestamp: new Date().toISOString(),
+    duration: duration,
+    type: duration ? getBlockType(duration) : null,
+    pool: block.extras?.pool?.name || 'Unknown',
+    txCount: block.tx_count || 0
+  };
+  sessionBlocks.unshift(entry);
+  if (sessionBlocks.length > 200) sessionBlocks.pop();
+
+  // Save to persistent history
+  if (duration !== null) {
+    historyLog.unshift(entry);
+    if (historyLog.length > 2000) historyLog.pop();
+    saveHistory();
+  }
+
+  // Update UI
+  renderBlocksTable();
+  renderSessionStats();
+  updateConditions();
+  renderStrategy();
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+  lastBlockTime = Math.floor(Date.now() / 1000);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+}
+
+function updateTimer() {
+  const elapsed = Math.floor(Date.now() / 1000) - (lastBlockTime || Math.floor(Date.now() / 1000));
+  const el = document.getElementById('timerVal');
+  const lbl = document.getElementById('timerLbl');
+  el.textContent = fmtTime(elapsed);
+
+  // Color coding
+  el.className = 'timer-val ';
+  if (elapsed < 300) { el.className += 'timer-green'; lbl.textContent = 'Round in progress'; }
+  else if (elapsed < 600) { el.className += 'timer-green'; lbl.textContent = 'Normal duration'; }
+  else if (elapsed < 900) { el.className += 'timer-amber'; lbl.textContent = 'Getting long...'; }
+  else if (elapsed < 1200) { el.className += 'timer-red'; lbl.textContent = 'Long round — Echo territory'; }
+  else { el.className += 'timer-critical'; lbl.textContent = '⚠️ Very long round!'; }
+}
+
+// ============================================================
+// RENDER BLOCKS TABLE (Dashboard)
+// ============================================================
+function renderBlocksTable() {
+  const tbody = document.getElementById('blocksTable');
+  tbody.innerHTML = '';
+  sessionBlocks.slice(0, 20).forEach(b => {
+    const tr = document.createElement('tr');
+    const typInfo = b.type ? BLOCK_TYPES[b.type] : { label: '—', badge: 'badge-normal' };
+    tr.innerHTML = `
+      <td style="color:var(--cyan)">${b.height || '—'}</td>
+      <td>${new Date(b.timestamp).toLocaleTimeString()}</td>
+      <td>${b.duration != null ? fmtDuration(b.duration) : '—'}</td>
+      <td><span class="badge ${typInfo.badge}">${typInfo.emoji || ''} ${typInfo.label}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ============================================================
+// SESSION STATS
+// ============================================================
+function renderSessionStats() {
+  const withDur = sessionBlocks.filter(b => b.duration != null);
+  document.getElementById('statBlocks').textContent = sessionBlocks.length;
+  if (withDur.length > 0) {
+    const avg = withDur.reduce((s, b) => s + b.duration, 0) / withDur.length;
+    document.getElementById('statAvg').textContent = fmtDuration(Math.round(avg));
+  }
+  document.getElementById('statFast').textContent = withDur.filter(b => b.type === 'fast').length;
+  document.getElementById('statLong').textContent = withDur.filter(b => b.type === 'long' || b.type === 'vlong').length;
+}
+
+// ============================================================
+// CURRENT CONDITIONS
+// ============================================================
+function updateConditions() {
+  const h = utcHour();
+  const comp = HOURLY_ACTIVITY[h];
+  const el = document.getElementById('compLevel');
+  const badge = document.getElementById('compBadge');
+
+  let level, badgeCls;
+  if (comp < 35) { level = 'LOW'; el.className = 'stat-val c-green'; badgeCls = 'badge-fast'; }
+  else if (comp < 55) { level = 'MODERATE'; el.className = 'stat-val c-blue'; badgeCls = 'badge-normal'; }
+  else if (comp < 70) { level = 'HIGH'; el.className = 'stat-val c-amber'; badgeCls = 'badge-long'; }
+  else { level = 'VERY HIGH'; el.className = 'stat-val c-red'; badgeCls = 'badge-vlong'; }
+  el.textContent = level;
+  badge.className = 'badge ' + badgeCls;
+  badge.textContent = `${comp}% estimated active`;
+
+  // Find next low window
+  for (let i = 1; i <= 24; i++) {
+    const fh = (h + i) % 24;
+    if (HOURLY_ACTIVITY[fh] < 35) {
+      document.getElementById('nextWindow').textContent = `${String(fh).padStart(2,'0')}:00`;
+      return;
+    }
+  }
+  document.getElementById('nextWindow').textContent = 'None soon';
+}
+
+// ============================================================
+// STRATEGY ENGINE
+// ============================================================
+function renderStrategy() {
+  const box = document.getElementById('strategyBox');
+  const h = utcHour();
+  const comp = HOURLY_ACTIVITY[h];
+  const elapsed = lastBlockTime ? Math.floor(Date.now() / 1000) - lastBlockTime : 0;
+  const items = [];
+  let title = '';
+
+  if (comp < 35 && elapsed > 600) {
+    title = '🟢 IDEAL — Low Competition + Long Round';
+    items.push('<strong>Echo Boost NOW</strong> — competition is minimal and round is extended. Maximum value window.');
+    items.push('Coordinate with Doshgoneit & Coldshakes for combined TH boost.');
+    items.push('If round exceeds 15m, consider stacking Power-Up on top.');
+  } else if (comp < 35) {
+    title = '🟢 Good — Low Competition';
+    items.push('<strong>Standby for boost</strong> — competition is low but round is still young.');
+    items.push('Prepare Green/Purple spells. Watch for round to extend past 10m.');
+    items.push('Good time for lower-TH members (Smaug, Azherat, Psystew) to use Instant Boost.');
+  } else if (comp >= 70 && elapsed > 900) {
+    title = '🔴 Risky — High Competition + Long Round';
+    items.push('<strong>Hold spells</strong> — competition is fierce. Your boost competes with many others.');
+    items.push('Only worth boosting if your clan activates a coordinated Power-Up stack.');
+    items.push(`Next low window: ~${String(findNextLow()).padStart(2,'0')}:00 UTC`);
+  } else if (comp >= 70) {
+    title = '🔴 Avoid — High Competition Period';
+    items.push('<strong>Save your GMT</strong> — too many active players right now.');
+    items.push('Use this time to review strategy, not spend spells.');
+    items.push(`Wait for competition to drop below 40%. Next window: ~${String(findNextLow()).padStart(2,'0')}:00 UTC`);
+  } else if (elapsed > 1200) {
+    title = '🟡 Very Long Round — Moderate Competition';
+    items.push('<strong>Consider Echo Boost</strong> — round is very long, which amplifies returns.');
+    items.push('Competition is moderate so returns are decent but not optimal.');
+    items.push('Best if Doshgoneit or Coldshakes lead the charge with their high TH.');
+  } else {
+    title = '🟡 Standard Conditions';
+    items.push('Competition is moderate. Round is normal length.');
+    items.push('Standard play — use Green/Purple on valuable rounds, save Echo for long rounds.');
+    items.push('Monitor for round extension past 10m before committing spells.');
+  }
+
+  box.innerHTML = `<div class="strat-title">${title}</div>` +
+    items.map(i => `<div class="strat-item">${i}</div>`).join('');
+}
+
+function findNextLow() {
+  const h = utcHour();
+  for (let i = 1; i <= 24; i++) {
+    if (HOURLY_ACTIVITY[(h + i) % 24] < 35) return (h + i) % 24;
+  }
+  return h;
+}
+
+// ============================================================
+// FETCH INITIAL BLOCKS (REST API fallback)
+// ============================================================
+async function fetchInitialBlocks() {
+  try {
+    const res = await fetch('https://mempool.space/api/v1/blocks');
+    const blocks = await res.json();
+    if (!Array.isArray(blocks) || blocks.length === 0) return;
+    for (let i = blocks.length - 1; i >= 0; i--) {
+      const b = blocks[i];
+      const dur = i < blocks.length - 1 ? b.timestamp - blocks[i + 1].timestamp : null;
+      const entry = {
+        height: b.height,
+        timestamp: new Date(b.timestamp * 1000).toISOString(),
+        duration: dur && dur > 0 ? dur : null,
+        type: dur && dur > 0 ? getBlockType(dur) : null,
+        pool: b.extras?.pool?.name || 'Unknown',
+        txCount: b.tx_count || 0
+      };
+      sessionBlocks.unshift(entry);
+    }
+    if (blocks.length > 0) lastBlockTime = blocks[0].timestamp;
+    renderBlocksTable();
+    renderSessionStats();
+    updateConditions();
+    renderStrategy();
+  } catch (e) {
+    console.warn('Failed to fetch initial blocks:', e);
+  }
+}
+</script>
+<script>
+// ============================================================
+// HISTORY TAB
+// ============================================================
+function saveHistory() {
+  try { localStorage.setItem('mw_history', JSON.stringify(historyLog)); } catch(e) {}
+}
+
+function filterHistory(type) {
+  currentFilter = type;
+  document.querySelectorAll('#histFilters .fpill').forEach(p =>
+    p.classList.toggle('active', p.dataset.filter === type));
+  renderHistoryTable();
+}
+
+function renderHistoryTable() {
+  const tbody = document.getElementById('histTable');
+  tbody.innerHTML = '';
+  let filtered = historyLog;
+  if (currentFilter !== 'all') {
+    filtered = historyLog.filter(b => b.type === currentFilter);
+  }
+  document.getElementById('histCount').textContent = `${filtered.length} entries (${historyLog.length} total)`;
+  filtered.slice(0, 200).forEach(b => {
+    const typInfo = b.type ? BLOCK_TYPES[b.type] : { label: '—', badge: 'badge-normal', emoji: '' };
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--cyan)">${b.height || '—'}</td>
+      <td>${new Date(b.timestamp).toLocaleString()}</td>
+      <td>${b.duration != null ? fmtDuration(b.duration) : '—'}</td>
+      <td><span class="badge ${typInfo.badge}">${typInfo.emoji || ''} ${typInfo.label}</span></td>
+      <td style="color:var(--txt-mute)">${b.pool || '—'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function exportHistory() {
+  if (historyLog.length === 0) return alert('No history to export.');
+  const rows = ['Height,Timestamp,Duration(s),Type,Pool'];
+  historyLog.forEach(b => {
+    rows.push(`${b.height},"${b.timestamp}",${b.duration||''},${b.type||''},${b.pool||''}`);
+  });
+  downloadFile('miner-wars-history.csv', rows.join('\n'));
+}
+
+function clearHistory() {
+  if (!confirm('Clear all block history? This cannot be undone.')) return;
+  historyLog = [];
+  saveHistory();
+  renderHistoryTable();
+  renderHistoryCharts();
+}
+
+// ============================================================
+// HISTORY CHARTS
+// ============================================================
+function renderHistoryCharts() {
+  renderDistChart();
+  renderHourlyChart();
+}
+
+function renderDistChart() {
+  const ctx = document.getElementById('distChart');
+  if (!ctx) return;
+  if (distChartInst) distChartInst.destroy();
+  const buckets = { '0-2m': 0, '2-5m': 0, '5-10m': 0, '10-15m': 0, '15-20m': 0, '20m+': 0 };
+  historyLog.forEach(b => {
+    if (b.duration == null) return;
+    const m = b.duration / 60;
+    if (m < 2) buckets['0-2m']++;
+    else if (m < 5) buckets['2-5m']++;
+    else if (m < 10) buckets['5-10m']++;
+    else if (m < 15) buckets['10-15m']++;
+    else if (m < 20) buckets['15-20m']++;
+    else buckets['20m+']++;
+  });
+  distChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(buckets),
+      datasets: [{
+        data: Object.values(buckets),
+        backgroundColor: ['#22c55e','#3b82f6','#a78bfa','#f59e0b','#ef4444','#991b1b'],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#7d8590', font: { size: 10, family: 'IBM Plex Mono' } }, grid: { display: false } },
+        y: { ticks: { color: '#7d8590', font: { size: 10, family: 'IBM Plex Mono' } }, grid: { color: 'rgba(48,54,61,.4)' } }
+      }
+    }
+  });
+}
+
+function renderHourlyChart() {
+  const ctx = document.getElementById('hourlyChart');
+  if (!ctx) return;
+  if (hourlyChartInst) hourlyChartInst.destroy();
+  const hourData = new Array(24).fill(null);
+  const hourCounts = new Array(24).fill(0);
+  const hourSums = new Array(24).fill(0);
+  historyLog.forEach(b => {
+    if (b.duration == null) return;
+    const h = new Date(b.timestamp).getUTCHours();
+    hourSums[h] += b.duration;
+    hourCounts[h]++;
+  });
+  for (let i = 0; i < 24; i++) {
+    if (hourCounts[i] > 0) hourData[i] = Math.round(hourSums[i] / hourCounts[i] / 60 * 10) / 10;
+  }
+  hourlyChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length:24}, (_,i) => String(i).padStart(2,'0') + ':00'),
+      datasets: [{
+        data: hourData,
+        borderColor: '#e8b931',
+        backgroundColor: 'rgba(232,185,49,.1)',
+        fill: true, tension: .3, pointRadius: 3, pointBackgroundColor: '#e8b931',
+        spanGaps: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#7d8590', font: { size: 9, family: 'IBM Plex Mono' }, maxRotation: 45 }, grid: { display: false } },
+        y: { title: { display: true, text: 'Minutes', color: '#7d8590', font: { size: 10 } }, ticks: { color: '#7d8590', font: { size: 10, family: 'IBM Plex Mono' } }, grid: { color: 'rgba(48,54,61,.4)' } }
+      }
+    }
+  });
+}
+
+// ============================================================
+// LEADERBOARD TAB
+// ============================================================
+function saveClans() {
+  try { localStorage.setItem('mw_clans', JSON.stringify(clans)); } catch(e) {}
+}
+
+function addClan() {
+  const name = document.getElementById('lbName').value.trim();
+  const th = parseInt(document.getElementById('lbTh').value) || 0;
+  const members = parseInt(document.getElementById('lbMembers').value) || 0;
+  const league = document.getElementById('lbLeague').value;
+  const blocksWon = parseInt(document.getElementById('lbBlocksWon').value) || 0;
+  const mine = document.getElementById('lbMine').checked;
+
+  if (!name) return alert('Enter a clan name.');
+  if (clans.find(c => c.name.toLowerCase() === name.toLowerCase())) return alert('Clan already exists.');
+
+  clans.push({ name, th, members, league, blocksWon, mine });
+  saveClans();
+  renderLeaderboard();
+
+  // Clear form
+  document.getElementById('lbName').value = '';
+  document.getElementById('lbTh').value = '';
+  document.getElementById('lbMembers').value = '';
+  document.getElementById('lbBlocksWon').value = '';
+  document.getElementById('lbMine').checked = false;
+}
+
+function removeClan(idx) {
+  clans.splice(idx, 1);
+  saveClans();
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  renderLbBars();
+  renderLbTable();
+  renderLbAnalysis();
+}
+
+function renderLbBars() {
+  const box = document.getElementById('lbBars');
+  if (!box) return;
+  box.innerHTML = '';
+  if (clans.length === 0) { box.innerHTML = '<p style="color:var(--txt-dim);font-size:.82rem">No clans added yet.</p>'; return; }
+  const maxTh = Math.max(...clans.map(c => c.th), 1);
+  const sorted = [...clans].sort((a, b) => b.blocksWon - a.blocksWon || b.th - a.th);
+  sorted.forEach(c => {
+    const pct = (c.th / maxTh * 100).toFixed(1);
+    const cls = c.mine ? 'lb-mine' : 'lb-other';
+    const star = c.mine ? ' ⭐' : '';
+    const div = document.createElement('div');
+    div.className = 'lb-bar-wrap';
+    div.innerHTML = `
+      <div class="lb-bar-label"><span>${c.name}${star}</span><span>${c.th.toLocaleString()} TH</span></div>
+      <div class="lb-bar"><div class="lb-bar-fill ${cls}" style="width:${pct}%">${pct}%</div></div>`;
+    box.appendChild(div);
+  });
+}
+
+function renderLbTable() {
+  const tbody = document.getElementById('lbTable');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  clans.forEach((c, i) => {
+    const thPerMember = c.members > 0 ? Math.round(c.th / c.members) : 0;
+    const star = c.mine ? '⭐' : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${star}</td>
+      <td style="font-weight:600;color:${c.mine ? 'var(--gold)' : 'var(--txt)'}">${c.name}</td>
+      <td>${c.th.toLocaleString()}</td>
+      <td>${c.members}</td>
+      <td>${c.league}</td>
+      <td>${c.blocksWon}</td>
+      <td style="color:var(--cyan)">${thPerMember.toLocaleString()}</td>
+      <td><button class="btn btn-sm" onclick="removeClan(${i})" style="color:var(--red)">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderLbAnalysis() {
+  const box = document.getElementById('lbAnalysis');
+  if (!box) return;
+  if (clans.length < 2) { box.innerHTML = '<p style="color:var(--txt-dim);font-size:.82rem">Add at least 2 clans to see analysis.</p>'; return; }
+
+  const totalTh = clans.reduce((s, c) => s + c.th, 0);
+  const totalBlocks = clans.reduce((s, c) => s + c.blocksWon, 0);
+  const sorted = [...clans].sort((a, b) => b.blocksWon - a.blocksWon || b.th - a.th);
+  const myClan = clans.find(c => c.mine);
+
+  let html = '<div style="font-size:.82rem;line-height:1.7">';
+  html += `<div style="margin-bottom:6px"><strong style="color:var(--gold)">Total Tracked TH:</strong> ${totalTh.toLocaleString()}</div>`;
+  html += `<div style="margin-bottom:12px"><strong style="color:var(--gold)">Total Blocks Won:</strong> ${totalBlocks.toLocaleString()}</div>`;
+
+  sorted.forEach((c, i) => {
+    const share = (c.th / totalTh * 100).toFixed(1);
+    const blockShare = totalBlocks > 0 ? (c.blocksWon / totalBlocks * 100).toFixed(1) : '0.0';
+    const color = c.mine ? 'var(--gold)' : 'var(--txt)';
+    const star = c.mine ? ' ⭐' : '';
+    html += `<div style="padding:4px 0;border-bottom:1px solid rgba(48,54,61,.5)">
+      <span style="color:${color};font-weight:600">#${i+1} ${c.name}${star}</span>
+      — <span style="color:var(--cyan)">${share}% TH</span>
+      — <span style="color:var(--green)">${c.blocksWon} blocks (${blockShare}%)</span></div>`;
+  });
+
+  if (myClan) {
+    const myIdx = sorted.findIndex(c => c.mine);
+    if (myIdx > 0) {
+      const above = sorted[myIdx - 1];
+      const gap = above.th - myClan.th;
+      html += `<div style="margin-top:12px;padding:8px;background:rgba(232,185,49,.08);border-radius:6px">
+        <strong style="color:var(--gold)">Gap to #${myIdx} (${above.name}):</strong> ${gap.toLocaleString()} TH</div>`;
+    }
+    if (myIdx < sorted.length - 1) {
+      const below = sorted[myIdx + 1];
+      const lead = myClan.th - below.th;
+      html += `<div style="margin-top:6px;padding:8px;background:rgba(34,197,94,.08);border-radius:6px">
+        <strong style="color:var(--green)">Lead over #${myIdx+2} (${below.name}):</strong> ${lead.toLocaleString()} TH</div>`;
+    }
+  }
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+function resetClans() {
+  if (!confirm('Reset leaderboard to the default 17 clans from screenshots?')) return;
+  clans = JSON.parse(JSON.stringify(DEFAULT_CLANS));
+  saveClans();
+  renderLeaderboard();
+}
+
+function exportLeaderboard() {
+  if (clans.length === 0) return alert('No clans to export.');
+  const rows = ['Clan,TH,Members,League,BlocksWon,MyClan'];
+  clans.forEach(c => {
+    rows.push(`"${c.name}",${c.th},${c.members},${c.league},${c.blocksWon},${c.mine}`);
+  });
+  downloadFile('miner-wars-leaderboard.csv', rows.join('\n'));
+}
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+function init() {
+  buildHeatmap();
+  updateRegions();
+  updateConditions();
+  renderStrategy();
+  renderHistoryTable();
+  renderLeaderboard();
+  fetchInitialBlocks().then(() => {
+    connectWS();
+  });
+  startTimer();
+
+  // Periodic updates
+  setInterval(updateTimer, 1000);
+  setInterval(updateRegions, 60000);
+  setInterval(updateConditions, 60000);
+  setInterval(renderStrategy, 30000);
+  setInterval(buildHeatmap, 300000);
+}
+
+init();
+</script>
+</body>
+</html>
