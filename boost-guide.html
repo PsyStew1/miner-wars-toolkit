@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GravitationaL Boost Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #E8E0F0 0%, #F5F0FA 50%, #E0E8F5 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(100, 80, 150, 0.15);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #6B46C1 0%, #805AD5 100%);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    .section {
+      padding: 25px;
+      border-bottom: 2px solid #F0E8F8;
+    }
+    .section:last-child { border-bottom: none; }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #6B46C1;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title .emoji { font-size: 24px; }
+    
+    /* Free daily */
+    .free-box {
+      background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+      border: 3px solid #10B981;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .free-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    .free-text h3 {
+      color: #065F46;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .free-text p {
+      color: #047857;
+      font-size: 14px;
+    }
+    .free-badge {
+      background: #10B981;
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-left: auto;
+    }
+
+    /* Tier table */
+    .tier-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .tier-table th {
+      background: #6B46C1;
+      color: white;
+      padding: 12px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .tier-table td {
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 13px;
+      border-bottom: 1px solid #E8E0F0;
+    }
+    .tier-table tr:last-child td { border-bottom: none; }
+    .tier-table tr:nth-child(even) { background: #FAF5FF; }
+    .tier-name {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tier-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-blue { background: #3B82F6; }
+    .dot-green { background: #10B981; }
+    .dot-yellow { background: #F59E0B; }
+    .dot-orange { background: #F97316; }
+    .dot-red { background: #EF4444; }
+    .dot-purple { background: #8B5CF6; }
+    .dot-gold { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    
+    .check { color: #10B981; font-weight: 700; }
+    .fire { color: #EF4444; font-weight: 700; }
+    .maybe { color: #F59E0B; font-weight: 700; }
+    .skip { color: #CBD5E1; }
+
+    /* Buttons guide */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .button-card {
+      background: #FAF5FF;
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .button-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .btn-orange { background: linear-gradient(135deg, #F97316, #EA580C); }
+    .btn-blue { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .btn-green { background: linear-gradient(135deg, #10B981, #059669); }
+    .btn-red { background: linear-gradient(135deg, #EF4444, #DC2626); }
+    .btn-purple { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+    .button-info h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+    .button-info p {
+      font-size: 11px;
+      color: #6B7280;
+    }
+    .button-cost {
+      margin-left: auto;
+      background: #E0E7FF;
+      color: #4338CA;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Steps */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #F8FAFC;
+      padding: 15px;
+      border-radius: 12px;
+      border-left: 4px solid #6B46C1;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      background: #6B46C1;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .step-text h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+    .step-text p {
+      font-size: 12px;
+      color: #6B7280;
+    }
+    .step-time {
+      margin-left: auto;
+      background: #DDD6FE;
+      color: #5B21B6;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Rules */
+    .rules-box {
+      background: #FEF3C7;
+      border: 2px solid #F59E0B;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .rule {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #92400E;
+    }
+    .rule:last-child { margin-bottom: 0; }
+    .rule-check {
+      color: #059669;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    /* Footer */
+    .footer {
+      background: #F8FAFC;
+      text-align: center;
+      padding: 20px;
+      color: #6B7280;
+      font-size: 12px;
+    }
+    .footer a {
+      color: #6B46C1;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌀 GRAVITATIONAL BOOST GUIDE</h1>
+      <p>Simple steps to boost with the clan</p>
+    </div>
+
+    <!-- Free Daily -->
+    <div class="section">
+      <div class="free-box">
+        <div class="free-icon">🔧</div>
+        <div class="free-text">
+          <h3>Miner Service</h3>
+          <p>Click this button EVERY day!</p>
+        </div>
+        <div class="free-badge">FREE</div>
+      </div>
+    </div>
+
+    <!-- What to click by tier -->
+    <div class="section">
+      <div class="section-title"><span class="emoji">📊</span> What to Click by Your TH</div>
+      <table class="tier-table">
+        <tr>
+          <th>YOUR TH</th>
+          <th>×4</th>
+          <th>×8</th>
+          <th>×16</th>
+          <th>×32+</th>
+        </tr>
+        <tr>
+          <td><div class="tier-name"><span class="tier-dot dot-blue"></span>0-50</div></td>
+          <td><span class="maybe">🔵</span></td>
+          <td><span class="maybe">🔵</span></td>
+          <td><span class="check">🔵🟠</span></td>
+          <td><span class="fire">🔥</span></td>
+        </tr>
+        <tr>
+          <td><div class="tier-name"><span class="tier-dot dot-green"></span>50-100</div></td>
+          <td><span class="maybe">🔵</span></td>
+          <td><span class="check">🔵🟠</span></td>
+          <td><span class="check">🔵🟠</span></td>
+          <td><span class="fire">🔥</span></td>
+        </tr>
+        <tr>
+          <td><div class="tier-name"><span class="tier-dot dot-yellow"></span>100-500</div></td>
+          <td><span class="check">🔵🟠</span></td>
+          <td><span class="check">🔵🟠</span></td>
+          <td><span class="fire">🔥</span></td>
+          <td><span class="fire">🔥</span></td>
+        </tr>
+        <tr>
+          <td><div class="tier-name"><span class="tier-dot dot-orange"></span>500-1K</div></td>
+          <td><span class="check">🔵🟠</span></td>
+          <td><span class="fire">🔥</span></td>
+          <td><span class="fire">🔥</span></td>
+          <td><span class="fire">🔥</span></td>
+        </tr>
+        <tr>
+          <td><div class="tier-name"><span class="tier-dot dot-purple"></span>1K+</div></td>
+          <td><span class="fire">🔥</span></td>
+          <td><span class="fire">🔥</span></td>
+          <td><span class="fire">🔥</span></td>
+          <td><span class="fire">🔥</span></td>
+        </tr>
+      </table>
+      <div style="margin-top: 12px; font-size: 12px; color: #6B7280; text-align: center;">
+        🔵 = Clan Power-Up &nbsp;|&nbsp; 🟠 = Power-Up &nbsp;|&nbsp; 🔥 = All In (add Instants + Spells)
+      </div>
+    </div>
+
+    <!-- Buttons explained -->
+    <div class="section">
+      <div class="section-title"><span class="emoji">🎮</span> The Buttons</div>
+      <div class="buttons-grid">
+        <div class="button-card">
+          <div class="button-icon btn-blue">⚡</div>
+          <div class="button-info">
+            <h4>Clan Power-Up</h4>
+            <p>Boosts ALL clan members</p>
+          </div>
+          <div class="button-cost">12.70</div>
+        </div>
+        <div class="button-card">
+          <div class="button-icon btn-orange">⚡</div>
+          <div class="button-info">
+            <h4>Power-Up</h4>
+            <p>Boosts YOUR points ×100</p>
+          </div>
+          <div class="button-cost">0.95</div>
+        </div>
+        <div class="button-card">
+          <div class="button-icon btn-orange">💥</div>
+          <div class="button-info">
+            <h4>Instant Boost</h4>
+            <p>+400K points instantly</p>
+          </div>
+          <div class="button-cost">1</div>
+        </div>
+        <div class="button-card">
+          <div class="button-icon btn-green">💥</div>
+          <div class="button-info">
+            <h4>Super Instant</h4>
+            <p>+4M points instantly</p>
+          </div>
+          <div class="button-cost">10</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- When to click -->
+    <div class="section">
+      <div class="section-title"><span class="emoji">⏱️</span> When to Click (After "BOOST" is Called)</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h4>🔵 Clan Power-Up</h4>
+            <p>Everyone clicks this FIRST</p>
+          </div>
+          <div class="step-time">0-30 sec</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h4>🟠 Power-Up</h4>
+            <p>Your personal boost</p>
+          </div>
+          <div class="step-time">30-60 sec</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <h4>💥 Instants & Spells</h4>
+            <p>If you can afford it</p>
+          </div>
+          <div class="step-time">1-2 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="section">
+      <div class="section-title"><span class="emoji">⚠️</span> Golden Rules</div>
+      <div class="rules-box">
+        <div class="rule"><span class="rule-check">✓</span> Click <b>Miner Service</b> every day — it's FREE!</div>
+        <div class="rule"><span class="rule-check">✓</span> Only spend what you can afford to lose</div>
+        <div class="rule"><span class="rule-check">✓</span> Can't afford? Just click Service Button</div>
+        <div class="rule"><span class="rule-check">✓</span> We boost together, we win together! 🚀</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      🔗 Tools: <a href="https://psystew1.github.io/miner-wars-toolkit/optimal-boost-tracker.html">Boost Tracker</a> &nbsp;|&nbsp; Bot: type <b>!coord</b>
+    </div>
+  </div>
+</body>
+</html>
