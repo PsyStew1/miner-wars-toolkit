@@ -3,460 +3,424 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⛏️ Miner Wars Ultimate Toolkit</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>⛏️ Miner Wars Toolkit</title>
     <style>
-        :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #111827;
-            --bg-card: #1a2234;
-            --accent-gold: #fbbf24;
-            --accent-orange: #f97316;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --accent-cyan: #06b6d4;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            background-image: radial-gradient(ellipse at top, rgba(251, 191, 36, 0.05) 0%, transparent 50%);
-        }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        header { text-align: center; padding: 25px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 25px; }
-        h1 {
-            font-family: 'Orbitron', sans-serif; font-size: 2rem;
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
-        }
-        .subtitle { color: var(--text-secondary); font-size: 0.8rem; }
-        .sound-toggle {
-            position: fixed; top: 15px; right: 15px; z-index: 1000;
-            display: flex; align-items: center; gap: 8px;
-            background: var(--bg-card); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
-        }
-        .toggle-switch { position: relative; width: 44px; height: 24px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 24px; transition: 0.3s;
-        }
-        .toggle-slider:before {
-            position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px;
-            background: var(--text-secondary); border-radius: 50%; transition: 0.3s;
-        }
-        .toggle-switch input:checked + .toggle-slider { background: var(--accent-green); border-color: var(--accent-green); }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); background: white; }
-        .tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
-        .tab-btn {
-            font-family: 'Orbitron', sans-serif; padding: 8px 14px; border: 2px solid var(--border-color);
-            background: var(--bg-secondary); color: var(--text-secondary); border-radius: 6px;
-            cursor: pointer; transition: all 0.3s ease; font-size: 0.7rem;
-        }
-        .tab-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
-            color: var(--bg-primary); border-color: var(--accent-gold);
-        }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
-        .card-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--accent-gold); }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 20px 0; border-bottom: 1px solid #334155; margin-bottom: 20px; }
+        h1 { font-size: 1.8rem; color: #fbbf24; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; font-size: 0.85rem; }
+        .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center; }
+        .tab { padding: 10px 16px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+        .tab:hover { background: #334155; }
+        .tab.active { background: #7c3aed; border-color: #7c3aed; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .card-title { font-size: 0.9rem; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .big-num { font-size: 3rem; font-weight: 700; text-align: center; }
         .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-        .timer-display { text-align: center; padding: 25px; }
-        .block-number { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; color: var(--accent-gold); }
-        .time-since { font-size: 2.8rem; font-weight: 700; color: var(--text-primary); margin: 12px 0; font-family: 'Orbitron', sans-serif; }
-        .time-since.warning { color: var(--accent-orange); animation: pulse 1s infinite; }
-        .time-since.danger { color: var(--accent-red); animation: pulse 0.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .time-label { color: var(--text-secondary); font-size: 0.8rem; }
-        .progress-bar { width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; margin-top: 16px; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-gold), var(--accent-orange), var(--accent-red)); transition: width 0.5s ease; }
-        .stat-box { background: var(--bg-secondary); padding: 16px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color); }
-        .stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--accent-gold); }
-        .stat-value.positive { color: var(--accent-green); }
-        .stat-value.negative { color: var(--accent-red); }
-        .stat-label { color: var(--text-secondary); font-size: 0.7rem; margin-top: 4px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-label { color: #94a3b8; }
+        .stat-value { font-weight: 600; }
+        .green { color: #10b981; }
+        .red { color: #ef4444; }
+        .gold { color: #fbbf24; }
+        .purple { color: #a78bfa; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-primary { background: #7c3aed; color: white; }
+        .btn-primary:hover { background: #6d28d9; }
+        input, select { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; margin-bottom: 12px; }
         .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 4px; }
-        .input-group input, .input-group select {
-            width: 100%; padding: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color);
-            border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
-        }
-        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent-gold); }
-        .input-row { display: flex; gap: 10px; }
-        .input-row .input-group { flex: 1; }
-        .btn {
-            font-family: 'Orbitron', sans-serif; padding: 10px 20px; border: none; border-radius: 6px;
-            cursor: pointer; font-size: 0.8rem; transition: all 0.3s ease;
-        }
-        .btn-primary { background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange)); color: var(--bg-primary); }
-        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-danger { background: var(--accent-red); color: white; }
-        .btn:hover { transform: translateY(-2px); }
-        .btn-sm { padding: 6px 12px; font-size: 0.7rem; }
-        .btn-block { width: 100%; }
-        .alert { padding: 12px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
-        .alert-warning { background: rgba(251, 191, 36, 0.1); border: 1px solid var(--accent-gold); color: var(--accent-gold); }
-        .alert-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); color: var(--accent-red); }
-        .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-green); color: var(--accent-green); }
-        .alert-info { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent-blue); color: var(--accent-blue); }
-        .info-panel { background: var(--bg-secondary); border-left: 3px solid var(--accent-blue); padding: 12px; margin: 12px 0; font-size: 0.75rem; color: var(--text-secondary); }
-        .timing-indicator { display: inline-block; padding: 4px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 600; }
-        .timing-safe { background: var(--accent-green); color: var(--bg-primary); }
-        .timing-caution { background: var(--accent-gold); color: var(--bg-primary); }
-        .timing-risky { background: var(--accent-orange); color: var(--bg-primary); }
-        .timing-danger { background: var(--accent-red); color: white; }
-        .price-large { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); }
-        .price-change { font-size: 1.1rem; margin-top: 8px; }
-        .price-change.up { color: var(--accent-green); }
-        .price-change.down { color: var(--accent-red); }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        .data-table th, .data-table td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .data-table th { color: var(--accent-gold); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; }
-        .tracker-entry { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 8px; }
-        .tracker-entry .amount { font-family: 'Orbitron', sans-serif; font-weight: 700; }
-        .tracker-entry .amount.spent { color: var(--accent-red); }
-        .tracker-entry .amount.earned { color: var(--accent-green); }
-        .multiplier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 6px; margin-top: 8px; }
-        .multiplier-btn {
-            padding: 10px 6px; background: var(--bg-secondary); border: 1px solid var(--border-color);
-            border-radius: 6px; color: var(--text-primary); font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem; cursor: pointer; transition: all 0.3s ease;
-        }
-        .multiplier-btn:hover, .multiplier-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(251, 191, 36, 0.1); }
-        .result-box { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; padding: 16px; margin-top: 16px; }
-        .result-box.positive { border-color: var(--accent-green); }
-        .result-box.negative { border-color: var(--accent-red); }
-        .result-value { font-size: 1.4rem; font-weight: 700; }
-        .result-value.positive { color: var(--accent-green); }
-        .result-value.negative { color: var(--accent-red); }
-        .strategy-box { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid var(--accent-purple); border-radius: 8px; padding: 16px; margin-top: 16px; }
-        .strategy-title { font-family: 'Orbitron', sans-serif; color: var(--accent-purple); margin-bottom: 8px; font-size: 0.9rem; }
-        .strategy-text { color: var(--text-secondary); line-height: 1.5; font-size: 0.8rem; }
-        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
-        .clan-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
-        .clan-card.recommended { border-color: var(--accent-gold); }
-        .clan-name { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--accent-gold); margin-bottom: 12px; }
-        .clan-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .clan-stat { text-align: center; padding: 8px; background: var(--bg-card); border-radius: 4px; }
-        .clan-stat-value { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--text-primary); }
-        .clan-stat-label { font-size: 0.6rem; color: var(--text-secondary); }
-        .code-block { background: #1e1e1e; border-radius: 8px; padding: 16px; overflow-x: auto; font-size: 0.65rem; line-height: 1.4; max-height: 350px; }
-        .code-block pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
-        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-radius: 6px; }
-        .checklist-item:hover { background: var(--bg-secondary); }
-        .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-green); }
-        /* Predictor Styles */
-        .predictor-box { background: var(--bg-secondary); border-radius: 12px; padding: 20px; text-align: center; border: 2px solid var(--border-color); }
-        .predictor-box.short { border-color: var(--accent-green); background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); }
-        .predictor-box.medium { border-color: var(--accent-gold); background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05)); }
-        .predictor-box.long { border-color: var(--accent-red); background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05)); }
-        .predictor-label { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; }
-        .predictor-value { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; }
-        .predictor-value.short { color: var(--accent-green); }
-        .predictor-value.medium { color: var(--accent-gold); }
-        .predictor-value.long { color: var(--accent-red); }
-        .predictor-prob { font-size: 0.85rem; margin-top: 8px; color: var(--text-secondary); }
-        .probability-bar { display: flex; height: 30px; border-radius: 6px; overflow: hidden; margin: 15px 0; }
-        .prob-segment { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; transition: width 0.5s ease; }
-        .prob-short { background: var(--accent-green); color: var(--bg-primary); }
-        .prob-medium { background: var(--accent-gold); color: var(--bg-primary); }
-        .prob-long { background: var(--accent-red); color: white; }
-        .history-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; padding: 10px 0; }
-        .history-bar { flex: 1; min-width: 8px; border-radius: 2px 2px 0 0; transition: height 0.3s; cursor: pointer; position: relative; }
-        .history-bar:hover::after {
-            content: attr(data-time);
-            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-            background: var(--bg-card); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; white-space: nowrap;
-        }
-        .history-bar.short { background: var(--accent-green); }
-        .history-bar.medium { background: var(--accent-gold); }
-        .history-bar.long { background: var(--accent-red); }
-        @media (max-width: 768px) {
-            h1 { font-size: 1.4rem; }
-            .block-number { font-size: 1.6rem; }
-            .time-since { font-size: 1.8rem; }
-            .tabs { gap: 4px; }
-            .tab-btn { padding: 6px 8px; font-size: 0.6rem; }
-            .sound-toggle { top: 8px; right: 8px; padding: 6px 8px; }
-            .price-large { font-size: 1.8rem; }
-            .predictor-value { font-size: 1.5rem; }
-        }
+        .input-group label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 6px; }
+        .spell-badge { display: inline-block; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin: 4px; }
+        .spell-echo { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        .spell-power { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .spell-focus { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .spell-wait { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
+        .alert-info { background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; color: #93c5fd; }
+        .probability-bar { height: 24px; background: #0f172a; border-radius: 12px; overflow: hidden; display: flex; margin: 8px 0; }
+        .prob-short { background: #10b981; }
+        .prob-normal { background: #3b82f6; }
+        .prob-long { background: #8b5cf6; }
+        .prob-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #94a3b8; font-size: 0.85rem; }
     </style>
 </head>
 <body>
-    <div class="sound-toggle">
-        <span>🔊</span>
-        <label class="toggle-switch">
-            <input type="checkbox" id="soundEnabled">
-            <span class="toggle-slider"></span>
-        </label>
-        <label for="soundEnabled" style="font-size:0.7rem;color:var(--text-secondary)">Alerts</label>
-    </div>
     <div class="container">
         <header>
             <h1>⛏️ MINER WARS TOOLKIT</h1>
-            <p class="subtitle">Block Timer • Predictor • Prices • ROI • Tracker • Clans • Discord Bot</p>
+            <p class="subtitle">Timer • Predictor • Prices • ROI • Tracker</p>
         </header>
+
         <div class="tabs">
-            <button class="tab-btn active" data-tab="timer">⏱️ Timer</button>
-            <button class="tab-btn" data-tab="predictor">🔮 Predictor</button>
-            <button class="tab-btn" data-tab="price">💰 Prices</button>
-            <button class="tab-btn" data-tab="calculator">📊 ROI</button>
-            <button class="tab-btn" data-tab="tracker">📒 Tracker</button>
-            <button class="tab-btn" data-tab="clans">⚔️ Clans</button>
+            <div class="tab active" onclick="showTab('timer')">⏱️ Timer</div>
+            <div class="tab" onclick="showTab('predictor')">📈 Predictor</div>
+            <div class="tab" onclick="showTab('prices')">💰 Prices</div>
+            <div class="tab" onclick="showTab('roi')">📊 ROI</div>
+            <div class="tab" onclick="showTab('tracker')">📒 Tracker</div>
         </div>
 
         <!-- TIMER TAB -->
-        <div id="timer" class="tab-content active">
-            <div class="card">
-                <div class="card-header"><span>⏱️</span><span class="card-title">LIVE BITCOIN BLOCK TIMER</span></div>
-                <div class="timer-display">
-                    <div class="time-label">CURRENT BLOCK</div>
-                    <div class="block-number" id="blockHeight">Loading...</div>
-                    <div class="time-label" style="margin-top:20px">TIME SINCE LAST BLOCK</div>
-                    <div class="time-since" id="timeSince">--:--</div>
-                    <div id="roundStatus" class="timing-indicator timing-safe">EARLY ROUND</div>
-                    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+        <div class="panel active" id="panel-timer">
+            <div class="grid-2">
+                <div class="card" style="text-align: center;">
+                    <div class="card-title">⏱️ Time Since Last Block</div>
+                    <div class="big-num green" id="timer">00:00</div>
+                    <div style="margin-top: 12px; color: #94a3b8;">
+                        Block: <span class="gold" id="blockHeight">Loading...</span>
+                    </div>
                 </div>
-            </div>
-            <div class="grid-4">
-                <div class="stat-box"><div class="stat-value" id="avgBlockTime">~10</div><div class="stat-label">AVG TIME (min)</div></div>
-                <div class="stat-box"><div class="stat-value" id="pendingTx">--</div><div class="stat-label">MEMPOOL TX</div></div>
-                <div class="stat-box"><div class="stat-value" id="hashRate">--</div><div class="stat-label">HASHRATE</div></div>
-                <div class="stat-box"><div class="stat-value" id="feeRate">--</div><div class="stat-label">FEE (sat/vB)</div></div>
-            </div>
-            <div class="card">
-                <div class="card-header"><span>🎯</span><span class="card-title">SPELL RECOMMENDATION</span></div>
-                <div id="spellRec"><div class="alert alert-warning">⏳ Loading...</div></div>
+                <div class="card">
+                    <div class="card-title">🔮 Spell Recommendation</div>
+                    <div id="spellRec">
+                        <span class="spell-badge spell-wait">⏳ Loading...</span>
+                    </div>
+                    <div style="margin-top: 16px; font-size: 0.8rem; color: #94a3b8; line-height: 1.8;">
+                        <div><span class="purple">Echo</span> — Round > 8 min, stacking rewards</div>
+                        <div><span class="green">Power-Up</span> — Steady PPS, anytime early/mid</div>
+                        <div><span class="red">Focus</span> — Huge points, vanish if > 5 min left</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- PREDICTOR TAB -->
-        <div id="predictor" class="tab-content">
-            <div class="alert alert-info">🔮 Predictions based on recent block history, mempool activity, and statistical analysis</div>
+        <div class="panel" id="panel-predictor">
             <div class="card">
-                <div class="card-header"><span>🔮</span><span class="card-title">BLOCK TIME PREDICTION</span></div>
-                <div class="grid-3">
-                    <div class="predictor-box short" id="predShort">
-                        <div class="predictor-label">SHORT ROUND</div>
-                        <div class="predictor-value short">&lt;5 min</div>
-                        <div class="predictor-prob" id="probShort">--% chance</div>
-                    </div>
-                    <div class="predictor-box medium" id="predMedium">
-                        <div class="predictor-label">NORMAL ROUND</div>
-                        <div class="predictor-value medium">5-12 min</div>
-                        <div class="predictor-prob" id="probMedium">--% chance</div>
-                    </div>
-                    <div class="predictor-box long" id="predLong">
-                        <div class="predictor-label">LONG ROUND</div>
-                        <div class="predictor-value long">&gt;12 min</div>
-                        <div class="predictor-prob" id="probLong">--% chance</div>
-                    </div>
+                <div class="card-title">📈 Block Length Probability</div>
+                <div class="alert alert-info">Based on last 20 blocks from mempool.space</div>
+                <div class="probability-bar">
+                    <div class="prob-short" id="probShort" style="width: 33%;"></div>
+                    <div class="prob-normal" id="probNormal" style="width: 34%;"></div>
+                    <div class="prob-long" id="probLong" style="width: 33%;"></div>
                 </div>
-                <div style="margin-top:20px">
-                    <div class="time-label" style="margin-bottom:8px">PROBABILITY DISTRIBUTION</div>
-                    <div class="probability-bar">
-                        <div class="prob-segment prob-short" id="barShort" style="width:33%">Short</div>
-                        <div class="prob-segment prob-medium" id="barMedium" style="width:34%">Normal</div>
-                        <div class="prob-segment prob-long" id="barLong" style="width:33%">Long</div>
-                    </div>
+                <div class="prob-label">
+                    <span>🟢 Short (&lt;5m): <span id="pctShort">33%</span></span>
+                    <span>🔵 Normal (5-12m): <span id="pctNormal">34%</span></span>
+                    <span>🟣 Long (>12m): <span id="pctLong">33%</span></span>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header"><span>📊</span><span class="card-title">PREDICTION FACTORS</span></div>
-                <div class="grid-4">
-                    <div class="stat-box">
-                        <div class="stat-value" id="recentAvg">--</div>
-                        <div class="stat-label">RECENT AVG (min)</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="mempoolPressure">--</div>
-                        <div class="stat-label">MEMPOOL PRESSURE</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="hashTrend">--</div>
-                        <div class="stat-label">HASH TREND</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="predictedTime">--</div>
-                        <div class="stat-label">EST. NEXT BLOCK</div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header"><span>📈</span><span class="card-title">LAST 20 BLOCKS HISTORY</span></div>
-                <div class="history-chart" id="blockHistory"></div>
-                <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-secondary);margin-top:5px">
-                    <span>← Older</span>
-                    <span>Newer →</span>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header"><span>🎯</span><span class="card-title">SPELL STRATEGY BASED ON PREDICTION</span></div>
-                <div id="predictionStrategy"><div class="info-panel">Analyzing...</div></div>
+                <div class="card-title">📊 Recent Blocks</div>
+                <div id="recentBlocks">Loading...</div>
             </div>
         </div>
 
-        <!-- PRICE TAB -->
-        <div id="price" class="tab-content">
+        <!-- PRICES TAB -->
+        <div class="panel" id="panel-prices">
             <div class="grid-2">
-                <div class="card">
-                    <div class="card-header"><span>🪙</span><span class="card-title">GOMINING (GMT)</span></div>
-                    <div style="text-align:center;padding:16px">
-                        <div class="price-large" id="gmtPrice">$0.00</div>
-                        <div class="price-change" id="gmtChange">Loading...</div>
-                    </div>
-                    <div class="grid-3">
-                        <div class="stat-box"><div class="stat-value" id="gmtHigh">--</div><div class="stat-label">24H HIGH</div></div>
-                        <div class="stat-box"><div class="stat-value" id="gmtLow">--</div><div class="stat-label">24H LOW</div></div>
-                        <div class="stat-box"><div class="stat-value" id="gmtVol">--</div><div class="stat-label">VOLUME</div></div>
-                    </div>
+                <div class="card" style="text-align: center;">
+                    <div class="card-title">💎 GOMINING</div>
+                    <div class="big-num gold" id="gmtPrice">$0.00</div>
+                    <div style="margin-top: 8px;" id="gmtChange">Loading...</div>
                 </div>
-                <div class="card">
-                    <div class="card-header"><span>₿</span><span class="card-title">BITCOIN (BTC)</span></div>
-                    <div style="text-align:center;padding:16px">
-                        <div class="price-large" id="btcPrice">$0</div>
-                        <div class="price-change" id="btcChange">Loading...</div>
-                    </div>
-                    <div class="grid-3">
-                        <div class="stat-box"><div class="stat-value" id="btcHigh">--</div><div class="stat-label">24H HIGH</div></div>
-                        <div class="stat-box"><div class="stat-value" id="btcLow">--</div><div class="stat-label">24H LOW</div></div>
-                        <div class="stat-box"><div class="stat-value" id="btcDom">--</div><div class="stat-label">DOMINANCE</div></div>
-                    </div>
+                <div class="card" style="text-align: center;">
+                    <div class="card-title">₿ BITCOIN</div>
+                    <div class="big-num gold" id="btcPrice">$0</div>
+                    <div style="margin-top: 8px;" id="btcChange">Loading...</div>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header"><span>🔔</span><span class="card-title">PRICE ALERTS</span></div>
+                <div class="card-title">📈 Price Info</div>
+                <div class="stat-row"><span class="stat-label">Last Updated</span><span class="stat-value" id="priceTime">—</span></div>
+                <div class="stat-row"><span class="stat-label">GMT Market Cap</span><span class="stat-value" id="gmtMcap">—</span></div>
+            </div>
+        </div>
+
+        <!-- ROI TAB -->
+        <div class="panel" id="panel-roi">
+            <div class="card">
+                <div class="card-title">📊 ROI Calculator</div>
                 <div class="grid-2">
-                    <div class="input-group"><label>Alert when GMT below ($)</label><input type="number" id="alertLow" value="0.40" step="0.01"></div>
-                    <div class="input-group"><label>Alert when GMT above ($)</label><input type="number" id="alertHigh" value="0.70" step="0.01"></div>
-                </div>
-                <button class="btn btn-primary btn-block" onclick="setAlerts()">SET ALERTS</button>
-                <div id="alertStatus" style="margin-top:12px"></div>
-            </div>
-        </div>
-
-        <!-- ROI CALCULATOR TAB -->
-        <div id="calculator" class="tab-content">
-            <div class="grid-2">
-                <div class="card">
-                    <div class="card-header"><span>⚙️</span><span class="card-title">YOUR STATS</span></div>
-                    <div class="input-group"><label>Your TH Power</label><input type="number" id="yourTH" value="50"></div>
-                    <div class="input-group"><label>Clan Total TH</label><input type="number" id="clanTH" value="5000"></div>
-                    <div class="input-group"><label>League</label>
-                        <select id="yourLeague">
-                            <option value="dune">Dune</option>
-                            <option value="horizon" selected>Horizon</option>
-                            <option value="eclipse">Eclipse</option>
-                            <option value="odyssey">Odyssey</option>
-                        </select>
+                    <div>
+                        <div class="input-group">
+                            <label>Your TH/s</label>
+                            <input type="number" id="roiTH" value="100" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Boost Cost (GMT)</label>
+                            <input type="number" id="roiCost" value="50" min="0">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="input-group">
+                            <label>Multiplier</label>
+                            <select id="roiMult">
+                                <option value="1">×1</option>
+                                <option value="2">×2</option>
+                                <option value="4">×4</option>
+                                <option value="8" selected>×8</option>
+                                <option value="16">×16</option>
+                                <option value="32">×32</option>
+                                <option value="64">×64</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>GMT Price ($)</label>
+                            <input type="number" id="roiGmtPrice" value="0.15" step="0.01">
+                        </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header"><span>💎</span><span class="card-title">BOOST CALC</span></div>
-                    <div class="input-group"><label>Boost Cost (GMT)</label><input type="number" id="boostCost" value="100"></div>
-                    <div class="input-group"><label>Token Price ($)</label><input type="number" id="tokenPrice" value="0.50" step="0.01"></div>
-                    <div class="input-group"><label>Multiplier</label></div>
-                    <div class="multiplier-grid">
-                        <button class="multiplier-btn" data-mult="1">x1</button>
-                        <button class="multiplier-btn active" data-mult="2">x2</button>
-                        <button class="multiplier-btn" data-mult="4">x4</button>
-                        <button class="multiplier-btn" data-mult="8">x8</button>
-                        <button class="multiplier-btn" data-mult="16">x16</button>
-                        <button class="multiplier-btn" data-mult="32">x32</button>
-                        <button class="multiplier-btn" data-mult="64">x64</button>
-                        <button class="multiplier-btn" data-mult="128">x128</button>
-                        <button class="multiplier-btn" data-mult="256">x256</button>
-                    </div>
-                    <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="calcROI()">CALCULATE</button>
-                </div>
+                <button class="btn btn-primary" style="width: 100%;" onclick="calcROI()">Calculate ROI</button>
             </div>
-            <div class="card"><div class="card-header"><span>📊</span><span class="card-title">RESULTS</span></div><div id="roiResults"><div class="info-panel">Enter stats and click Calculate</div></div></div>
+            <div class="card" id="roiResults">
+                <div class="card-title">📈 Results</div>
+                <div style="color: #94a3b8; text-align: center; padding: 20px;">Enter values and click Calculate</div>
+            </div>
         </div>
 
         <!-- TRACKER TAB -->
-        <div id="tracker" class="tab-content">
+        <div class="panel" id="panel-tracker">
             <div class="alert alert-info">💾 Data saved locally in your browser</div>
-            <div class="grid-2">
-                <div class="card">
-                    <div class="card-header"><span>➕</span><span class="card-title">ADD ENTRY</span></div>
-                    <div class="input-group"><label>Type</label>
+            <div class="card">
+                <div class="card-title">➕ Add Entry</div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Type</label>
                         <select id="entryType">
-                            <option value="spent">🔴 Spent</option>
-                            <option value="earned">🟢 Earned</option>
-                            <option value="btc">₿ BTC</option>
+                            <option value="spent">🔴 Spent (GMT)</option>
+                            <option value="earned">🟢 Earned (GMT)</option>
                         </select>
                     </div>
-                    <div class="input-row">
-                        <div class="input-group"><label>Amount</label><input type="number" id="entryAmt" value="0" step="0.00000001"></div>
-                        <div class="input-group"><label>Multiplier</label>
-                            <select id="entryMult"><option>x1</option><option>x2</option><option>x4</option><option selected>x8</option><option>x16</option><option>x32</option><option>x64</option><option>x128</option><option>x256</option></select>
-                        </div>
+                    <div class="input-group">
+                        <label>Amount</label>
+                        <input type="number" id="entryAmt" value="0" step="0.01">
                     </div>
-                    <div class="input-group"><label>Notes</label><input type="text" id="entryNotes" placeholder="Optional"></div>
-                    <button class="btn btn-primary btn-block" onclick="addEntry()">ADD</button>
                 </div>
-                <div class="card">
-                    <div class="card-header"><span>📊</span><span class="card-title">THIS WEEK</span></div>
-                    <div class="summary-row"><span>Spent</span><span class="stat-value negative" id="wkSpent">0</span></div>
-                    <div class="summary-row"><span>Earned</span><span class="stat-value positive" id="wkEarned">0</span></div>
-                    <div class="summary-row"><span>BTC</span><span class="stat-value" id="wkBTC">0</span></div>
-                    <div class="summary-row"><span>Net</span><span class="stat-value" id="wkNet">0</span></div>
-                </div>
+                <button class="btn btn-primary" style="width: 100%;" onclick="addEntry()">Add Entry</button>
             </div>
             <div class="card">
-                <div class="card-header" style="justify-content:space-between"><div style="display:flex;gap:10px"><span>📜</span><span class="card-title">HISTORY</span></div>
-                    <div><button class="btn btn-secondary btn-sm" onclick="exportData()">Export</button> <button class="btn btn-danger btn-sm" onclick="clearData()">Clear</button></div>
+                <div class="card-title">📊 Summary</div>
+                <div class="stat-row"><span class="stat-label">Total Spent</span><span class="stat-value red" id="totalSpent">0 GMT</span></div>
+                <div class="stat-row"><span class="stat-label">Total Earned</span><span class="stat-value green" id="totalEarned">0 GMT</span></div>
+                <div class="stat-row"><span class="stat-label">Net Profit</span><span class="stat-value" id="netProfit">0 GMT</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title" style="justify-content: space-between;">
+                    <span>📜 History</span>
+                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="clearTracker()">Clear</button>
                 </div>
-                <div id="history"><div class="info-panel">No entries yet</div></div>
+                <div id="trackerHistory">No entries yet</div>
             </div>
         </div>
+    </div>
 
-        <!-- CLANS TAB -->
-        <div id="clans" class="tab-content">
-            <div class="alert alert-info">💡 Enter clan stats to compare</div>
-            <div class="card">
-                <div class="card-header"><span>➕</span><span class="card-title">ADD CLAN</span></div>
-                <div class="grid-2">
-                    <div>
-                        <div class="input-group"><label>Clan Name</label><input type="text" id="clanName" placeholder="Name"></div>
-                        <div class="input-row">
-                            <div class="input-group"><label>Total TH</label><input type="number" id="clanPower" value="10000"></div>
-                            <div class="input-group"><label>Members</label><input type="number" id="clanMembers" value="50"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="input-row">
-                            <div class="input-group"><label>Wins/Week</label><input type="number" id="clanWins" value="10"></div>
-                            <div class="input-group"><label>Rewards</label><input type="number" id="clanRewards" value="5000"></div>
-                        </div>
-                        <div class="input-group"><label>League</label>
-                            <select id="clanLeague"><option>Dune</option><option selected>Horizon</option><option>Eclipse</option><option>Odyssey</option></select>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn btn-primary btn-block" onclick="addClan()">ADD</button>
-            </div>
-            <div class="card">
-                <div class="card-header" style="justify-content:space-between"><div style="display:flex;gap:10px"><span>⚔️</span><span class="card-title">COMPARISON</span></div>
-                    <button class="btn btn-secondary btn-sm" onclick="clearClans()">Clear</button>
-                </div>
-                <div id="clanList"><div class="info-panel">Add clans to compare</div></div>
-            </div>
-        </div>
+    <script>
+        // Tab switching
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelector(`[onclick="showTab('${tab}')"]`).classList.add('active');
+            document.getElementById('panel-' + tab).classList.add('active');
+        }
 
-        <!-- DISCORD BOT TAB -->
+        // State
+        let lastBlock = null;
+        let recentBlocks = [];
+        let trackerData = JSON.parse(localStorage.getItem('mwTracker') || '[]');
 
+        // Timer
+        function updateTimer() {
+            if (!lastBlock) return;
+            const elapsed = Math.floor((Date.now() / 1000) - lastBlock.timestamp);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            document.getElementById('timer').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            // Color based on time
+            const timerEl = document.getElementById('timer');
+            if (mins < 5) {
+                timerEl.className = 'big-num green';
+            } else if (mins < 10) {
+                timerEl.className = 'big-num gold';
+            } else {
+                timerEl.className = 'big-num red';
+            }
+
+            // Spell recommendation
+            updateSpellRec(mins);
+        }
+
+        function updateSpellRec(mins) {
+            const el = document.getElementById('spellRec');
+            if (mins < 2) {
+                el.innerHTML = '<span class="spell-badge spell-power">⚡ GO NOW! Power-Up + Instants</span>';
+            } else if (mins < 5) {
+                el.innerHTML = '<span class="spell-badge spell-power">🟢 Power Boost - Good window</span>';
+            } else if (mins < 8) {
+                el.innerHTML = '<span class="spell-badge spell-echo">🟣 Echo Boost - Stacking time</span>';
+            } else if (mins < 12) {
+                el.innerHTML = '<span class="spell-badge spell-focus">🟡 Caution - Round may end soon</span>';
+            } else {
+                el.innerHTML = '<span class="spell-badge spell-wait">🔴 WAIT - New block imminent!</span>';
+            }
+        }
+
+        // Fetch block data
+        async function fetchBlocks() {
+            try {
+                const res = await fetch('https://mempool.space/api/v1/blocks');
+                const blocks = await res.json();
+                if (blocks && blocks.length > 0) {
+                    lastBlock = blocks[0];
+                    recentBlocks = blocks.slice(0, 20);
+                    document.getElementById('blockHeight').textContent = lastBlock.height.toLocaleString();
+                    updatePredictions();
+                    updateRecentBlocks();
+                }
+            } catch (e) {
+                console.error('Block fetch error:', e);
+            }
+        }
+
+        function updatePredictions() {
+            if (recentBlocks.length < 2) return;
+            let short = 0, normal = 0, long = 0;
+            for (let i = 0; i < recentBlocks.length - 1; i++) {
+                const diff = recentBlocks[i].timestamp - recentBlocks[i + 1].timestamp;
+                const mins = diff / 60;
+                if (mins < 5) short++;
+                else if (mins <= 12) normal++;
+                else long++;
+            }
+            const total = short + normal + long;
+            const pShort = Math.round((short / total) * 100);
+            const pNormal = Math.round((normal / total) * 100);
+            const pLong = 100 - pShort - pNormal;
+
+            document.getElementById('probShort').style.width = pShort + '%';
+            document.getElementById('probNormal').style.width = pNormal + '%';
+            document.getElementById('probLong').style.width = pLong + '%';
+            document.getElementById('pctShort').textContent = pShort + '%';
+            document.getElementById('pctNormal').textContent = pNormal + '%';
+            document.getElementById('pctLong').textContent = pLong + '%';
+        }
+
+        function updateRecentBlocks() {
+            if (recentBlocks.length < 2) return;
+            let html = '<table><tr><th>Block</th><th>Time</th><th>Type</th></tr>';
+            for (let i = 0; i < Math.min(10, recentBlocks.length - 1); i++) {
+                const diff = recentBlocks[i].timestamp - recentBlocks[i + 1].timestamp;
+                const mins = Math.round(diff / 60);
+                let type = '🔵 Normal';
+                if (mins < 5) type = '🟢 Short';
+                else if (mins > 12) type = '🟣 Long';
+                html += `<tr><td>${recentBlocks[i].height}</td><td>${mins} min</td><td>${type}</td></tr>`;
+            }
+            html += '</table>';
+            document.getElementById('recentBlocks').innerHTML = html;
+        }
+
+        // Fetch prices
+        async function fetchPrices() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=gomining-token,bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true');
+                const data = await res.json();
+                if (data['gomining-token']) {
+                    const gmt = data['gomining-token'];
+                    document.getElementById('gmtPrice').textContent = '$' + gmt.usd.toFixed(4);
+                    const gmtChange = gmt.usd_24h_change?.toFixed(2) || 0;
+                    document.getElementById('gmtChange').innerHTML = `<span class="${gmtChange >= 0 ? 'green' : 'red'}">${gmtChange >= 0 ? '+' : ''}${gmtChange}%</span>`;
+                    document.getElementById('gmtMcap').textContent = '$' + (gmt.usd_market_cap / 1e6).toFixed(2) + 'M';
+                    document.getElementById('roiGmtPrice').value = gmt.usd.toFixed(4);
+                }
+                if (data['bitcoin']) {
+                    const btc = data['bitcoin'];
+                    document.getElementById('btcPrice').textContent = '$' + btc.usd.toLocaleString();
+                    const btcChange = btc.usd_24h_change?.toFixed(2) || 0;
+                    document.getElementById('btcChange').innerHTML = `<span class="${btcChange >= 0 ? 'green' : 'red'}">${btcChange >= 0 ? '+' : ''}${btcChange}%</span>`;
+                }
+                document.getElementById('priceTime').textContent = new Date().toLocaleTimeString();
+            } catch (e) {
+                console.error('Price fetch error:', e);
+            }
+        }
+
+        // ROI Calculator
+        function calcROI() {
+            const th = parseFloat(document.getElementById('roiTH').value) || 100;
+            const cost = parseFloat(document.getElementById('roiCost').value) || 50;
+            const mult = parseInt(document.getElementById('roiMult').value) || 8;
+            const gmtPrice = parseFloat(document.getElementById('roiGmtPrice').value) || 0.15;
+
+            const pps = th * 28 / 20; // Assuming 20 W/TH average
+            const baseReward = mult * 100; // Simplified reward calc
+            const expectedReward = baseReward * (th / 1000);
+            const costUSD = cost * gmtPrice;
+            const rewardUSD = expectedReward * gmtPrice;
+            const profit = rewardUSD - costUSD;
+
+            document.getElementById('roiResults').innerHTML = `
+                <div class="card-title">📈 Results</div>
+                <div class="stat-row"><span class="stat-label">Your PPS</span><span class="stat-value">${pps.toFixed(1)}</span></div>
+                <div class="stat-row"><span class="stat-label">Cost</span><span class="stat-value red">${cost} GMT ($${costUSD.toFixed(2)})</span></div>
+                <div class="stat-row"><span class="stat-label">Expected Reward</span><span class="stat-value green">~${expectedReward.toFixed(1)} GMT ($${rewardUSD.toFixed(2)})</span></div>
+                <div class="stat-row"><span class="stat-label">Expected Profit</span><span class="stat-value ${profit >= 0 ? 'green' : 'red'}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</span></div>
+                <div class="alert alert-info" style="margin-top: 16px;">⚠️ This is an estimate. Actual rewards depend on competition and luck.</div>
+            `;
+        }
+
+        // Tracker
+        function addEntry() {
+            const type = document.getElementById('entryType').value;
+            const amt = parseFloat(document.getElementById('entryAmt').value) || 0;
+            if (amt <= 0) return;
+            trackerData.push({ type, amt, date: new Date().toISOString() });
+            localStorage.setItem('mwTracker', JSON.stringify(trackerData));
+            updateTracker();
+            document.getElementById('entryAmt').value = '0';
+        }
+
+        function updateTracker() {
+            let spent = 0, earned = 0;
+            trackerData.forEach(e => {
+                if (e.type === 'spent') spent += e.amt;
+                else earned += e.amt;
+            });
+            document.getElementById('totalSpent').textContent = spent.toFixed(2) + ' GMT';
+            document.getElementById('totalEarned').textContent = earned.toFixed(2) + ' GMT';
+            const net = earned - spent;
+            const netEl = document.getElementById('netProfit');
+            netEl.textContent = (net >= 0 ? '+' : '') + net.toFixed(2) + ' GMT';
+            netEl.className = 'stat-value ' + (net >= 0 ? 'green' : 'red');
+
+            // History
+            if (trackerData.length === 0) {
+                document.getElementById('trackerHistory').innerHTML = 'No entries yet';
+            } else {
+                let html = '<table><tr><th>Date</th><th>Type</th><th>Amount</th></tr>';
+                trackerData.slice(-10).reverse().forEach(e => {
+                    const date = new Date(e.date).toLocaleDateString();
+                    const typeLabel = e.type === 'spent' ? '🔴 Spent' : '🟢 Earned';
+                    html += `<tr><td>${date}</td><td>${typeLabel}</td><td>${e.amt.toFixed(2)} GMT</td></tr>`;
+                });
+                html += '</table>';
+                document.getElementById('trackerHistory').innerHTML = html;
+            }
+        }
+
+        function clearTracker() {
+            if (confirm('Clear all tracker data?')) {
+                trackerData = [];
+                localStorage.removeItem('mwTracker');
+                updateTracker();
+            }
+        }
+
+        // Init
+        fetchBlocks();
+        fetchPrices();
+        updateTracker();
+        setInterval(updateTimer, 1000);
+        setInterval(fetchBlocks, 30000);
+        setInterval(fetchPrices, 60000);
+    </script>
+</body>
+</html>
