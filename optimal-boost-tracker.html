@@ -382,25 +382,44 @@ let timerInterval = null;
 let sessionBlocks = [];
 let historyLog = JSON.parse(localStorage.getItem('mw_history') || '[]');
 const DEFAULT_CLANS = [
-  { name: 'DOGE', th: 304213.80, members: 0, league: 'Legend', blocksWon: 135, mine: false },
-  { name: 'Blockaholics', th: 56597.48, members: 0, league: 'Legend', blocksWon: 134, mine: false },
-  { name: 'Wagmington', th: 296868.23, members: 0, league: 'Legend', blocksWon: 88, mine: false },
-  { name: 'MineBitcoin.club', th: 304957.16, members: 0, league: 'Legend', blocksWon: 61, mine: false },
-  { name: 'The Deep End', th: 54362.62, members: 0, league: 'Legend', blocksWon: 53, mine: false },
-  { name: 'BIT TITANS', th: 4207.96, members: 0, league: 'Odyssey', blocksWon: 29, mine: false },
-  { name: 'ArcticMonkeys', th: 102482.05, members: 0, league: 'Legend', blocksWon: 23, mine: false },
-  { name: 'MineBitcoin.PRO', th: 42466.57, members: 0, league: 'Legend', blocksWon: 15, mine: false },
-  { name: 'Bitcoin Sniper', th: 52427.42, members: 0, league: 'Legend', blocksWon: 10, mine: false },
+  { name: 'DOGE', th: 301840.90, members: 0, league: 'Legend', blocksWon: 211, mine: false },
+  { name: 'Blockaholics', th: 58679.54, members: 0, league: 'Legend', blocksWon: 160, mine: false },
+  { name: 'Wagmington', th: 298559.71, members: 0, league: 'Legend', blocksWon: 111, mine: false },
+  { name: 'MineBitcoin.club', th: 304915.04, members: 0, league: 'Legend', blocksWon: 89, mine: false },
+  { name: 'The Deep End', th: 60548.18, members: 0, league: 'Legend', blocksWon: 68, mine: false },
+  { name: 'BIT TITANS', th: 4286.26, members: 0, league: 'Odyssey', blocksWon: 35, mine: false },
+  { name: 'ArcticMonkeys', th: 102493.75, members: 0, league: 'Legend', blocksWon: 29, mine: false },
+  { name: 'Bitcoin Sniper', th: 52886.58, members: 0, league: 'Legend', blocksWon: 25, mine: false },
+  { name: 'Rainbow Land', th: 6097.36, members: 0, league: 'Odyssey', blocksWon: 21, mine: false },
+  { name: 'GOMINING PARADISE', th: 13332.95, members: 0, league: 'Odyssey', blocksWon: 16, mine: false },
+  { name: 'MineBitcoin.PRO', th: 40834.37, members: 0, league: 'Legend', blocksWon: 15, mine: false },
+  { name: 'GravitationaL', th: 16491.55, members: 49, league: 'Odyssey', blocksWon: 15, mine: true },
+  { name: 'BLOCKPOWER', th: 41006.73, members: 0, league: 'Legend', blocksWon: 14, mine: false },
+  { name: 'Mineami', th: 14833.44, members: 0, league: 'Odyssey', blocksWon: 10, mine: false },
   { name: 'Pick TEAM', th: 5352.43, members: 0, league: 'Odyssey', blocksWon: 10, mine: false },
-  { name: 'Rainbow Land', th: 19115.57, members: 0, league: 'Odyssey', blocksWon: 9, mine: false },
-  { name: 'GravitationaL', th: 20624.63, members: 49, league: 'Odyssey', blocksWon: 8, mine: true },
-  { name: 'Mineami', th: 14835.15, members: 0, league: 'Odyssey', blocksWon: 8, mine: false },
-  { name: 'BLOCKPOWER', th: 41044.32, members: 0, league: 'Legend', blocksWon: 6, mine: false },
-  { name: 'Aura Miners', th: 7861.09, members: 0, league: 'Odyssey', blocksWon: 6, mine: false },
-  { name: '20w Syndicate', th: 16715.55, members: 0, league: 'Odyssey', blocksWon: 5, mine: false },
-  { name: 'Mega Pool', th: 15013.45, members: 0, league: 'Odyssey', blocksWon: 4, mine: false }
+  { name: 'Exclusive Team', th: 30517.46, members: 0, league: 'Odyssey', blocksWon: 9, mine: false },
+  { name: 'Mega Pool', th: 14977.98, members: 0, league: 'Odyssey', blocksWon: 9, mine: false },
+  { name: '20w Syndicate', th: 16726.02, members: 0, league: 'Odyssey', blocksWon: 8, mine: false },
+  { name: 'All Winners', th: 21933.56, members: 0, league: 'Odyssey', blocksWon: 6, mine: false },
+  { name: 'Aura Miners', th: 9741.83, members: 0, league: 'Odyssey', blocksWon: 6, mine: false },
+  { name: 'MW Whale$', th: 29188.53, members: 0, league: 'Odyssey', blocksWon: 3, mine: false },
+  { name: 'MineCraft', th: 4850.80, members: 0, league: 'Odyssey', blocksWon: 3, mine: false },
+  { name: 'Best Choice', th: 3267.19, members: 0, league: 'Odyssey', blocksWon: 3, mine: false },
+  { name: 'MAXIMALIST', th: 2597.24, members: 0, league: 'Odyssey', blocksWon: 3, mine: false },
+  { name: 'BTC Company', th: 17921.81, members: 0, league: 'Odyssey', blocksWon: 2, mine: false },
+  { name: 'CLOUD ZIM', th: 6243.44, members: 0, league: 'Odyssey', blocksWon: 2, mine: false },
+  { name: 'Lucky Duck', th: 6143.60, members: 0, league: 'Odyssey', blocksWon: 2, mine: false },
+  { name: 'DOC N CREW', th: 845.60, members: 0, league: 'Odyssey', blocksWon: 2, mine: false },
+  { name: 'MineBitcoin.Prime', th: 8787.88, members: 0, league: 'Odyssey', blocksWon: 1, mine: false },
+  { name: 'Open-Bar VIP1', th: 5398.08, members: 0, league: 'Odyssey', blocksWon: 1, mine: false },
+  { name: 'Da House', th: 4415.03, members: 0, league: 'Odyssey', blocksWon: 1, mine: false },
+  { name: 'High Dive', th: 3147.97, members: 0, league: 'Odyssey', blocksWon: 1, mine: false },
+  { name: 'CORE NFT Raffle', th: 2816.06, members: 0, league: 'Odyssey', blocksWon: 1, mine: false },
+  { name: 'OG GoMining clan', th: 2483.14, members: 0, league: 'Odyssey', blocksWon: 1, mine: false },
+  { name: 'PIPLUP S ARMY', th: 2164.85, members: 0, league: 'Odyssey', blocksWon: 1, mine: false },
+  { name: 'CORE ITALY', th: 1770.58, members: 0, league: 'Odyssey', blocksWon: 1, mine: false }
 ];
-const MW_DATA_VERSION = 2;
+const MW_DATA_VERSION = 4;
 let _stored = JSON.parse(localStorage.getItem('mw_clans') || 'null');
 let _ver = parseInt(localStorage.getItem('mw_clans_ver') || '0');
 let clans;
