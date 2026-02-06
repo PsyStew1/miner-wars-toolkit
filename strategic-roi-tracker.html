@@ -1,2192 +1,462 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌀 GravitationaL Strategic ROI Tracker | GoMining</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-deep: #0a0c10;
-  --bg-panel: #0f1218;
-  --bg-card: #141820;
-  --bg-input: #1a1f2a;
-  --border: #1e2530;
-  --border-glow: #2a3545;
-  --text-primary: #e8ecf2;
-  --text-secondary: #7a8599;
-  --text-dim: #4a5568;
-  --accent-cyan: #00d4ff;
-  --accent-cyan-dim: rgba(0, 212, 255, 0.15);
-  --accent-purple: #8b5cf6;
-  --accent-purple-dim: rgba(139, 92, 246, 0.15);
-  --accent-green: #10b981;
-  --accent-green-dim: rgba(16, 185, 129, 0.15);
-  --accent-red: #ef4444;
-  --accent-red-dim: rgba(239, 68, 68, 0.15);
-  --accent-amber: #f59e0b;
-  --accent-amber-dim: rgba(245, 158, 11, 0.15);
-  --accent-gold: #fbbf24;
-  --accent-btc: #f7931a;
-  --radius: 8px;
-  --radius-lg: 12px;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'Rajdhani', sans-serif;
-  background: var(--bg-deep);
-  color: var(--text-primary);
-  min-height: 100vh;
-}
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
-.app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 12px; }
-.header { text-align: center; padding: 16px 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
-.header h1 {
-  font-family: 'Orbitron', monospace;
-  font-size: 1.5rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--accent-btc), var(--accent-cyan), var(--accent-purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 2px;
-}
-.header .sub { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text-dim); letter-spacing: 3px; margin-top: 4px; }
-.price-ticker {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  padding: 10px 16px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 12px;
-}
-.price-item { display: flex; align-items: center; gap: 8px; }
-.price-icon {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem; font-weight: bold;
-}
-.price-icon.btc { background: linear-gradient(135deg, #f7931a, #e8850a); color: #fff; }
-.price-icon.gmt { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; }
-.price-label { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px; }
-.price-value { font-family: 'Orbitron', monospace; font-size: 0.95rem; font-weight: 700; }
-.price-value.btc-color { color: var(--accent-btc); }
-.price-value.gmt-color { color: var(--accent-purple); }
-.price-change { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; }
-.price-change.up { background: var(--accent-green-dim); color: var(--accent-green); }
-.price-change.down { background: var(--accent-red-dim); color: var(--accent-red); }
-.tab-bar {
-  display: flex; gap: 3px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 3px;
-  margin-bottom: 12px;
-  overflow-x: auto;
-}
-.tab-btn {
-  flex: 1; min-width: 70px;
-  padding: 7px 8px;
-  border: none; border-radius: var(--radius);
-  background: transparent;
-  color: var(--text-secondary);
-  font-family: 'Orbitron', monospace;
-  font-size: 0.5rem; font-weight: 600;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-.tab-btn:hover { color: var(--text-primary); background: var(--bg-card); }
-.tab-btn.active {
-  background: linear-gradient(135deg, var(--accent-cyan-dim), var(--accent-purple-dim));
-  color: var(--accent-cyan);
-  border: 1px solid rgba(0,212,255,0.2);
-}
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
-@keyframes slideDown { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-  margin-bottom: 10px;
-}
-.card-header {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 10px; padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-.card-header h3 {
-  font-family: 'Orbitron', monospace;
-  font-size: 0.65rem; font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--accent-cyan);
-}
-.card-header .icon { font-size: 1rem; }
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
-.stat-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px;
-  text-align: center;
-}
-.stat-box.hl-green { border-color: var(--accent-green); background: var(--accent-green-dim); }
-.stat-box.hl-red { border-color: var(--accent-red); background: var(--accent-red-dim); }
-.stat-box.hl-btc { border-color: var(--accent-btc); background: rgba(247,147,26,0.1); }
-.stat-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.5rem; color: var(--text-dim);
-  letter-spacing: 1px; margin-bottom: 3px;
-}
-.stat-value { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 700; }
-.stat-value.pos { color: var(--accent-green); }
-.stat-value.neg { color: var(--accent-red); }
-.stat-value.neu { color: var(--accent-cyan); }
-.stat-value.gold { color: var(--accent-gold); }
-.stat-value.btc { color: var(--accent-btc); }
-.stat-value.gmt { color: var(--accent-purple); }
-.stat-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--text-dim); margin-top: 2px; }
-.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 8px; }
-.form-group { display: flex; flex-direction: column; gap: 2px; }
-.form-group label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.5rem; color: var(--text-dim);
-  letter-spacing: 1px;
-}
-input, select, textarea {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 7px 9px;
-  color: var(--text-primary);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  outline: none;
-}
-input:focus, select:focus { border-color: var(--accent-cyan); }
-select option { background: var(--bg-card); }
-.btn {
-  padding: 7px 14px;
-  border: none; border-radius: var(--radius);
-  font-family: 'Orbitron', monospace;
-  font-size: 0.55rem; font-weight: 600;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-primary { background: linear-gradient(135deg, var(--accent-cyan), #0099cc); color: #000; }
-.btn-primary:hover { box-shadow: 0 0 15px rgba(0,212,255,0.4); }
-.btn-purple { background: linear-gradient(135deg, var(--accent-purple), #6d28d9); color: #fff; }
-.btn-btc { background: linear-gradient(135deg, var(--accent-btc), #e8850a); color: #fff; }
-.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
-.btn-ghost:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-.btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-.alert {
-  padding: 8px 12px;
-  border-radius: var(--radius);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem;
-  margin-bottom: 8px;
-  display: flex; align-items: center; gap: 6px;
-}
-.alert-info { background: var(--accent-cyan-dim); border: 1px solid rgba(0,212,255,0.2); color: var(--accent-cyan); }
-.alert-warn { background: var(--accent-amber-dim); border: 1px solid rgba(245,158,11,0.2); color: var(--accent-amber); }
-.alert-success { background: var(--accent-green-dim); border: 1px solid rgba(16,185,129,0.2); color: var(--accent-green); }
-.scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.scenario-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px;
-  text-align: center;
-}
-.scenario-box.bear { border-color: var(--accent-red); }
-.scenario-box.base { border-color: var(--accent-amber); }
-.scenario-box.bull { border-color: var(--accent-green); }
-.scenario-label { font-family: 'Orbitron', monospace; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 6px; }
-.scenario-box.bear .scenario-label { color: var(--accent-red); }
-.scenario-box.base .scenario-label { color: var(--accent-amber); }
-.scenario-box.bull .scenario-label { color: var(--accent-green); }
-.strat-card {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
-  margin-bottom: 8px;
-}
-.strat-card h4 {
-  font-family: 'Orbitron', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 1px;
-  margin-bottom: 6px;
-  display: flex; align-items: center; gap: 6px;
-}
-.strat-card p { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-secondary); line-height: 1.5; }
-.strat-card.recommended { border-color: var(--accent-green); background: var(--accent-green-dim); }
-.strat-card.cautious { border-color: var(--accent-amber); background: var(--accent-amber-dim); }
-.strat-card.avoid { border-color: var(--accent-red); background: var(--accent-red-dim); }
-.ev-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-.ev-box .formula { color: var(--accent-cyan); }
-.divider { height: 1px; background: var(--border); margin: 10px 0; }
-.text-green { color: var(--accent-green); }
-.text-red { color: var(--accent-red); }
-.text-cyan { color: var(--accent-cyan); }
-.text-amber { color: var(--accent-amber); }
-.text-btc { color: var(--accent-btc); }
-.text-gmt { color: var(--accent-purple); }
-.text-dim { color: var(--text-dim); }
-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; }
-th {
-  font-family: 'Orbitron', monospace;
-  font-size: 0.45rem; font-weight: 600;
-  letter-spacing: 1px;
-  color: var(--text-dim);
-  text-align: left;
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--border);
-}
-td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
-tr:hover td { background: rgba(0,212,255,0.03); }
-.tag { display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 0.55rem; font-weight: 600; }
-.tag-green { background: var(--accent-green-dim); color: var(--accent-green); }
-.tag-red { background: var(--accent-red-dim); color: var(--accent-red); }
-.tag-amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
-.tag-cyan { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
-.tag-purple { background: var(--accent-purple-dim); color: var(--accent-purple); }
-.verdict-box { text-align: center; padding: 14px; border-radius: var(--radius-lg); margin-bottom: 10px; }
-.verdict-box h4 { font-family: 'Orbitron', monospace; font-size: 0.9rem; font-weight: 800; margin-bottom: 4px; }
-.verdict-box p { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; }
-.del-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.9rem; padding: 2px 4px; }
-.del-btn:hover { color: var(--accent-red); }
-@media (max-width: 768px) {
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .scenario-grid { grid-template-columns: 1fr; }
-  .form-row { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 480px) {
-  .form-row { grid-template-columns: 1fr; }
-}
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg-deep); }
-::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⛏️ Miner Wars Ultimate Toolkit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --accent-gold: #fbbf24;
+            --accent-orange: #f97316;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: radial-gradient(ellipse at top, rgba(251, 191, 36, 0.05) 0%, transparent 50%);
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 25px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 25px; }
+        h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
+        }
+        .subtitle { color: var(--text-secondary); font-size: 0.8rem; }
+        .sound-toggle {
+            position: fixed; top: 15px; right: 15px; z-index: 1000;
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-card); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
+        }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 24px; transition: 0.3s;
+        }
+        .toggle-slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px;
+            background: var(--text-secondary); border-radius: 50%; transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--accent-green); border-color: var(--accent-green); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); background: white; }
+        .tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn {
+            font-family: 'Orbitron', sans-serif; padding: 8px 14px; border: 2px solid var(--border-color);
+            background: var(--bg-secondary); color: var(--text-secondary); border-radius: 6px;
+            cursor: pointer; transition: all 0.3s ease; font-size: 0.7rem;
+        }
+        .tab-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            color: var(--bg-primary); border-color: var(--accent-gold);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+        .card-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--accent-gold); }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        .timer-display { text-align: center; padding: 25px; }
+        .block-number { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; color: var(--accent-gold); }
+        .time-since { font-size: 2.8rem; font-weight: 700; color: var(--text-primary); margin: 12px 0; font-family: 'Orbitron', sans-serif; }
+        .time-since.warning { color: var(--accent-orange); animation: pulse 1s infinite; }
+        .time-since.danger { color: var(--accent-red); animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .time-label { color: var(--text-secondary); font-size: 0.8rem; }
+        .progress-bar { width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; margin-top: 16px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-gold), var(--accent-orange), var(--accent-red)); transition: width 0.5s ease; }
+        .stat-box { background: var(--bg-secondary); padding: 16px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color); }
+        .stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--accent-gold); }
+        .stat-value.positive { color: var(--accent-green); }
+        .stat-value.negative { color: var(--accent-red); }
+        .stat-label { color: var(--text-secondary); font-size: 0.7rem; margin-top: 4px; }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 4px; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+        }
+        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent-gold); }
+        .input-row { display: flex; gap: 10px; }
+        .input-row .input-group { flex: 1; }
+        .btn {
+            font-family: 'Orbitron', sans-serif; padding: 10px 20px; border: none; border-radius: 6px;
+            cursor: pointer; font-size: 0.8rem; transition: all 0.3s ease;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange)); color: var(--bg-primary); }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-danger { background: var(--accent-red); color: white; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-sm { padding: 6px 12px; font-size: 0.7rem; }
+        .btn-block { width: 100%; }
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+        .alert-warning { background: rgba(251, 191, 36, 0.1); border: 1px solid var(--accent-gold); color: var(--accent-gold); }
+        .alert-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); color: var(--accent-red); }
+        .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-green); color: var(--accent-green); }
+        .alert-info { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+        .info-panel { background: var(--bg-secondary); border-left: 3px solid var(--accent-blue); padding: 12px; margin: 12px 0; font-size: 0.75rem; color: var(--text-secondary); }
+        .timing-indicator { display: inline-block; padding: 4px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 600; }
+        .timing-safe { background: var(--accent-green); color: var(--bg-primary); }
+        .timing-caution { background: var(--accent-gold); color: var(--bg-primary); }
+        .timing-risky { background: var(--accent-orange); color: var(--bg-primary); }
+        .timing-danger { background: var(--accent-red); color: white; }
+        .price-large { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); }
+        .price-change { font-size: 1.1rem; margin-top: 8px; }
+        .price-change.up { color: var(--accent-green); }
+        .price-change.down { color: var(--accent-red); }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .data-table th, .data-table td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .data-table th { color: var(--accent-gold); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; }
+        .tracker-entry { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 8px; }
+        .tracker-entry .amount { font-family: 'Orbitron', sans-serif; font-weight: 700; }
+        .tracker-entry .amount.spent { color: var(--accent-red); }
+        .tracker-entry .amount.earned { color: var(--accent-green); }
+        .multiplier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 6px; margin-top: 8px; }
+        .multiplier-btn {
+            padding: 10px 6px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-primary); font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem; cursor: pointer; transition: all 0.3s ease;
+        }
+        .multiplier-btn:hover, .multiplier-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(251, 191, 36, 0.1); }
+        .result-box { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .result-box.positive { border-color: var(--accent-green); }
+        .result-box.negative { border-color: var(--accent-red); }
+        .result-value { font-size: 1.4rem; font-weight: 700; }
+        .result-value.positive { color: var(--accent-green); }
+        .result-value.negative { color: var(--accent-red); }
+        .strategy-box { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid var(--accent-purple); border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .strategy-title { font-family: 'Orbitron', sans-serif; color: var(--accent-purple); margin-bottom: 8px; font-size: 0.9rem; }
+        .strategy-text { color: var(--text-secondary); line-height: 1.5; font-size: 0.8rem; }
+        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+        .clan-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
+        .clan-card.recommended { border-color: var(--accent-gold); }
+        .clan-name { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--accent-gold); margin-bottom: 12px; }
+        .clan-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .clan-stat { text-align: center; padding: 8px; background: var(--bg-card); border-radius: 4px; }
+        .clan-stat-value { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--text-primary); }
+        .clan-stat-label { font-size: 0.6rem; color: var(--text-secondary); }
+        .code-block { background: #1e1e1e; border-radius: 8px; padding: 16px; overflow-x: auto; font-size: 0.65rem; line-height: 1.4; max-height: 350px; }
+        .code-block pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-radius: 6px; }
+        .checklist-item:hover { background: var(--bg-secondary); }
+        .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-green); }
+        /* Predictor Styles */
+        .predictor-box { background: var(--bg-secondary); border-radius: 12px; padding: 20px; text-align: center; border: 2px solid var(--border-color); }
+        .predictor-box.short { border-color: var(--accent-green); background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); }
+        .predictor-box.medium { border-color: var(--accent-gold); background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05)); }
+        .predictor-box.long { border-color: var(--accent-red); background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05)); }
+        .predictor-label { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .predictor-value { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; }
+        .predictor-value.short { color: var(--accent-green); }
+        .predictor-value.medium { color: var(--accent-gold); }
+        .predictor-value.long { color: var(--accent-red); }
+        .predictor-prob { font-size: 0.85rem; margin-top: 8px; color: var(--text-secondary); }
+        .probability-bar { display: flex; height: 30px; border-radius: 6px; overflow: hidden; margin: 15px 0; }
+        .prob-segment { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; transition: width 0.5s ease; }
+        .prob-short { background: var(--accent-green); color: var(--bg-primary); }
+        .prob-medium { background: var(--accent-gold); color: var(--bg-primary); }
+        .prob-long { background: var(--accent-red); color: white; }
+        .history-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; padding: 10px 0; }
+        .history-bar { flex: 1; min-width: 8px; border-radius: 2px 2px 0 0; transition: height 0.3s; cursor: pointer; position: relative; }
+        .history-bar:hover::after {
+            content: attr(data-time);
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: var(--bg-card); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; white-space: nowrap;
+        }
+        .history-bar.short { background: var(--accent-green); }
+        .history-bar.medium { background: var(--accent-gold); }
+        .history-bar.long { background: var(--accent-red); }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.4rem; }
+            .block-number { font-size: 1.6rem; }
+            .time-since { font-size: 1.8rem; }
+            .tabs { gap: 4px; }
+            .tab-btn { padding: 6px 8px; font-size: 0.6rem; }
+            .sound-toggle { top: 8px; right: 8px; padding: 6px 8px; }
+            .price-large { font-size: 1.8rem; }
+            .predictor-value { font-size: 1.5rem; }
+        }
+    </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <h1>⛏️ Strategic ROI Tracker</h1>
-    <div class="sub">GOMINING • MINER WARS • LIVE ANALYTICS</div>
-  </div>
-
-  <!-- LIVE PRICE TICKER -->
-  <div class="price-ticker">
-    <div class="price-item">
-      <div class="price-icon btc">₿</div>
-      <div><div class="price-label">BITCOIN</div><div class="price-value btc-color" id="btcPrice">$--,---</div></div>
-      <div class="price-change" id="btcChange">--%</div>
+    <div class="sound-toggle">
+        <span>🔊</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="soundEnabled">
+            <span class="toggle-slider"></span>
+        </label>
+        <label for="soundEnabled" style="font-size:0.7rem;color:var(--text-secondary)">Alerts</label>
     </div>
-    <div class="price-item">
-      <div class="price-icon gmt">G</div>
-      <div><div class="price-label">GOMINING</div><div class="price-value gmt-color" id="gmtPrice">$-.--</div></div>
-      <div class="price-change" id="gmtChange">--%</div>
-    </div>
-    <div class="price-item">
-      <div><div class="price-label">SATS/TH/DAY</div><div class="price-value btc" id="satsPerTH">-- sats</div></div>
-    </div>
-    <div class="price-item">
-      <div><div class="price-label">LAST UPDATE</div><div class="price-value neu" id="priceTime" style="font-size:0.7rem;">--:--</div></div>
-    </div>
-  </div>
-
-  <!-- TAB BAR -->
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 DASH</button>
-    <button class="tab-btn" onclick="switchTab('mining')">⛏️ MINING</button>
-    <button class="tab-btn" onclick="switchTab('growth')">📈 GROWTH</button>
-    <button class="tab-btn" onclick="switchTab('holdings')">💰 HOLDINGS</button>
-    <button class="tab-btn" onclick="switchTab('strategy')">🎯 STRATEGY</button>
-    <button class="tab-btn" onclick="switchTab('projections')">🔮 FORECAST</button>
-    <button class="tab-btn" onclick="switchTab('tracker')">📜 TRACKER</button>
-    <button class="tab-btn" onclick="switchTab('scanner')">🔍 SCANNER</button>
-    <button class="tab-btn" onclick="switchTab('settings')">⚙️ SETUP</button>
-  </div>
-
-  <!-- PLACEHOLDER FOR TAB CONTENT - WILL BE ADDED IN PART 2 -->
-  <div id="tabContent"></div>
-</div>
-
-<!-- PART 2: TAB CONTENT HTML WILL BE INJECTED HERE -->
-<script>
-// =====================================================
-// PART 2: TAB CONTENT HTML TEMPLATES
-// =====================================================
-const tabTemplates = {
-  dashboard: `
-    <div class="card">
-      <div class="card-header"><span class="icon">💎</span><h3>Your Mining Portfolio</h3></div>
-      <div class="stat-grid">
-        <div class="stat-box hl-btc"><div class="stat-label">TOTAL TH/S</div><div class="stat-value btc" id="dashTH">29.08</div><div class="stat-sub">Power</div></div>
-        <div class="stat-box"><div class="stat-label">AVG W/TH</div><div class="stat-value neu" id="dashEE">17.75</div><div class="stat-sub">Efficiency</div></div>
-        <div class="stat-box"><div class="stat-label">DAILY GROSS</div><div class="stat-value btc" id="dashGross">0 sats</div><div class="stat-sub">Before fees</div></div>
-        <div class="stat-box hl-green"><div class="stat-label">DAILY NET</div><div class="stat-value pos" id="dashNet">0 sats</div><div class="stat-sub">After fees</div></div>
-        <div class="stat-box"><div class="stat-label">DAILY USD</div><div class="stat-value gold" id="dashDayUSD">$0.00</div></div>
-        <div class="stat-box"><div class="stat-label">MONTHLY USD</div><div class="stat-value gold" id="dashMonUSD">$0.00</div></div>
-        <div class="stat-box"><div class="stat-label">YEARLY USD</div><div class="stat-value gold" id="dashYrUSD">$0.00</div></div>
-        <div class="stat-box"><div class="stat-label">DISCOUNT</div><div class="stat-value gmt" id="dashDisc">23%</div><div class="stat-sub">Total</div></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">🎯</span><h3>AI Strategy Summary</h3></div>
-      <div id="stratBrief"></div>
-    </div>`,
-
-  mining: `
-    <div class="card">
-      <div class="card-header"><span class="icon">⛏️</span><h3>Mining Economics Calculator</h3></div>
-      <div class="alert alert-info">💡 Calculates real net rewards using GoMining's actual fee formulas</div>
-      <div class="form-row">
-        <div class="form-group"><label>YOUR TH/S</label><input type="number" id="calcTH" value="29.08" step="0.01"></div>
-        <div class="form-group"><label>W/TH EFFICIENCY</label><input type="number" id="calcEE" value="17.75" step="0.01"></div>
-        <div class="form-group"><label>ELEC COST $/KWH</label><input type="number" id="calcElec" value="0.05" step="0.01"></div>
-        <div class="form-group"><label>SERVICE $/TH/DAY</label><input type="number" id="calcServ" value="0.0089" step="0.0001"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>TOKEN DISCOUNT %</label>
-          <select id="calcTokenDisc"><option value="0">0%</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option></select>
+    <div class="container">
+        <header>
+            <h1>⛏️ MINER WARS TOOLKIT</h1>
+            <p class="subtitle">Block Timer • Predictor • Prices • ROI • Tracker • Clans • Discord Bot</p>
+        </header>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="timer">⏱️ Timer</button>
+            <button class="tab-btn" data-tab="predictor">🔮 Predictor</button>
+            <button class="tab-btn" data-tab="price">💰 Prices</button>
+            <button class="tab-btn" data-tab="calculator">📊 ROI</button>
+            <button class="tab-btn" data-tab="tracker">📒 Tracker</button>
+            <button class="tab-btn" data-tab="clans">⚔️ Clans</button>
         </div>
-        <div class="form-group"><label>SERVICE BTN %</label>
-          <select id="calcServDisc"><option value="0">0%</option><option value="1.5">1.5%</option><option value="3" selected>3%</option></select>
+
+        <!-- TIMER TAB -->
+        <div id="timer" class="tab-content active">
+            <div class="card">
+                <div class="card-header"><span>⏱️</span><span class="card-title">LIVE BITCOIN BLOCK TIMER</span></div>
+                <div class="timer-display">
+                    <div class="time-label">CURRENT BLOCK</div>
+                    <div class="block-number" id="blockHeight">Loading...</div>
+                    <div class="time-label" style="margin-top:20px">TIME SINCE LAST BLOCK</div>
+                    <div class="time-since" id="timeSince">--:--</div>
+                    <div id="roundStatus" class="timing-indicator timing-safe">EARLY ROUND</div>
+                    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+                </div>
+            </div>
+            <div class="grid-4">
+                <div class="stat-box"><div class="stat-value" id="avgBlockTime">~10</div><div class="stat-label">AVG TIME (min)</div></div>
+                <div class="stat-box"><div class="stat-value" id="pendingTx">--</div><div class="stat-label">MEMPOOL TX</div></div>
+                <div class="stat-box"><div class="stat-value" id="hashRate">--</div><div class="stat-label">HASHRATE</div></div>
+                <div class="stat-box"><div class="stat-value" id="feeRate">--</div><div class="stat-label">FEE (sat/vB)</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>🎯</span><span class="card-title">SPELL RECOMMENDATION</span></div>
+                <div id="spellRec"><div class="alert alert-warning">⏳ Loading...</div></div>
+            </div>
         </div>
-        <div class="form-group"><label>VIP DISCOUNT %</label>
-          <select id="calcVIPDisc"><option value="0">0%</option><option value="0.3">0.3%</option><option value="0.6">0.6%</option><option value="1">1%</option><option value="3">3%</option><option value="6">6%</option></select>
+
+        <!-- PREDICTOR TAB -->
+        <div id="predictor" class="tab-content">
+            <div class="alert alert-info">🔮 Predictions based on recent block history, mempool activity, and statistical analysis</div>
+            <div class="card">
+                <div class="card-header"><span>🔮</span><span class="card-title">BLOCK TIME PREDICTION</span></div>
+                <div class="grid-3">
+                    <div class="predictor-box short" id="predShort">
+                        <div class="predictor-label">SHORT ROUND</div>
+                        <div class="predictor-value short">&lt;5 min</div>
+                        <div class="predictor-prob" id="probShort">--% chance</div>
+                    </div>
+                    <div class="predictor-box medium" id="predMedium">
+                        <div class="predictor-label">NORMAL ROUND</div>
+                        <div class="predictor-value medium">5-12 min</div>
+                        <div class="predictor-prob" id="probMedium">--% chance</div>
+                    </div>
+                    <div class="predictor-box long" id="predLong">
+                        <div class="predictor-label">LONG ROUND</div>
+                        <div class="predictor-value long">&gt;12 min</div>
+                        <div class="predictor-prob" id="probLong">--% chance</div>
+                    </div>
+                </div>
+                <div style="margin-top:20px">
+                    <div class="time-label" style="margin-bottom:8px">PROBABILITY DISTRIBUTION</div>
+                    <div class="probability-bar">
+                        <div class="prob-segment prob-short" id="barShort" style="width:33%">Short</div>
+                        <div class="prob-segment prob-medium" id="barMedium" style="width:34%">Normal</div>
+                        <div class="prob-segment prob-long" id="barLong" style="width:33%">Long</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>📊</span><span class="card-title">PREDICTION FACTORS</span></div>
+                <div class="grid-4">
+                    <div class="stat-box">
+                        <div class="stat-value" id="recentAvg">--</div>
+                        <div class="stat-label">RECENT AVG (min)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="mempoolPressure">--</div>
+                        <div class="stat-label">MEMPOOL PRESSURE</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="hashTrend">--</div>
+                        <div class="stat-label">HASH TREND</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="predictedTime">--</div>
+                        <div class="stat-label">EST. NEXT BLOCK</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>📈</span><span class="card-title">LAST 20 BLOCKS HISTORY</span></div>
+                <div class="history-chart" id="blockHistory"></div>
+                <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-secondary);margin-top:5px">
+                    <span>← Older</span>
+                    <span>Newer →</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>🎯</span><span class="card-title">SPELL STRATEGY BASED ON PREDICTION</span></div>
+                <div id="predictionStrategy"><div class="info-panel">Analyzing...</div></div>
+            </div>
         </div>
-        <div class="form-group"><label>SATS/TH/DAY</label><input type="number" id="calcSats" value="38" step="1"></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="calculateMining()">⛏️ CALCULATE</button>
-        <button class="btn btn-ghost" onclick="useLiveSats()">🔄 USE LIVE SATS</button>
-      </div>
-      <div id="miningResults" style="margin-top:12px;"></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">📐</span><h3>GoMining Fee Formulas</h3></div>
-      <div class="ev-box">
-        <div><span class="formula">Electricity</span> = (kWh × 24 / 1000) × W/TH × TH / BTC_USD</div>
-        <div><span class="formula">Service</span> = $0.0089 × TH / BTC_USD</div>
-        <div><span class="formula">Total Discount</span> = Token(0-20%) + ServiceBtn(0-3%) + VIP(0-6%) = max 29%</div>
-        <div><span class="formula">Net</span> = Gross - (Maintenance × (1 - Discount))</div>
-      </div>
-    </div>`,
 
-  growth: `
-    <div class="card">
-      <div class="card-header"><span class="icon">📈</span><h3>TH/s Growth Strategy Planner</h3></div>
-      <div class="alert alert-info">💡 Plan mining power expansion with ROI projections</div>
-      <div class="form-row">
-        <div class="form-group"><label>CURRENT TH/S</label><input type="number" id="growCurTH" value="29.08"></div>
-        <div class="form-group"><label>TARGET TH/S</label><input type="number" id="growTgtTH" value="100"></div>
-        <div class="form-group"><label>COST PER TH $</label><input type="number" id="growCostTH" value="55"></div>
-        <div class="form-group"><label>TARGET W/TH</label><input type="number" id="growTgtEE" value="15"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="calcGrowth()">📈 CALCULATE GROWTH</button></div>
-      <div id="growthResults" style="margin-top:12px;"></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">🔄</span><h3>Reinvestment Calculator</h3></div>
-      <div class="form-row">
-        <div class="form-group"><label>MONTHLY NET $</label><input type="number" id="reinvMonth" value="50"></div>
-        <div class="form-group"><label>REINVEST RATE</label>
-          <select id="reinvRate"><option value="25">25%</option><option value="50" selected>50%</option><option value="75">75%</option><option value="100">100%</option></select>
+        <!-- PRICE TAB -->
+        <div id="price" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><span>🪙</span><span class="card-title">GOMINING (GMT)</span></div>
+                    <div style="text-align:center;padding:16px">
+                        <div class="price-large" id="gmtPrice">$0.00</div>
+                        <div class="price-change" id="gmtChange">Loading...</div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="stat-box"><div class="stat-value" id="gmtHigh">--</div><div class="stat-label">24H HIGH</div></div>
+                        <div class="stat-box"><div class="stat-value" id="gmtLow">--</div><div class="stat-label">24H LOW</div></div>
+                        <div class="stat-box"><div class="stat-value" id="gmtVol">--</div><div class="stat-label">VOLUME</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>₿</span><span class="card-title">BITCOIN (BTC)</span></div>
+                    <div style="text-align:center;padding:16px">
+                        <div class="price-large" id="btcPrice">$0</div>
+                        <div class="price-change" id="btcChange">Loading...</div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="stat-box"><div class="stat-value" id="btcHigh">--</div><div class="stat-label">24H HIGH</div></div>
+                        <div class="stat-box"><div class="stat-value" id="btcLow">--</div><div class="stat-label">24H LOW</div></div>
+                        <div class="stat-box"><div class="stat-value" id="btcDom">--</div><div class="stat-label">DOMINANCE</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span>🔔</span><span class="card-title">PRICE ALERTS</span></div>
+                <div class="grid-2">
+                    <div class="input-group"><label>Alert when GMT below ($)</label><input type="number" id="alertLow" value="0.40" step="0.01"></div>
+                    <div class="input-group"><label>Alert when GMT above ($)</label><input type="number" id="alertHigh" value="0.70" step="0.01"></div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="setAlerts()">SET ALERTS</button>
+                <div id="alertStatus" style="margin-top:12px"></div>
+            </div>
         </div>
-        <div class="form-group"><label>MONTHS</label><input type="number" id="reinvMonths" value="12" min="1" max="60"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-purple" onclick="calcReinvest()">🔄 PROJECT COMPOUND</button></div>
-      <div id="reinvestResults" style="margin-top:12px;"></div>
-    </div>`,
 
-  holdings: `
-    <div class="card">
-      <div class="card-header"><span class="icon">💰</span><h3>Holdings Allocation Optimizer</h3></div>
-      <div class="alert alert-info">💡 Optimize: BTC vs GMT vs TH/s upgrades</div>
-      <div class="form-row">
-        <div class="form-group"><label>CAPITAL TO ALLOCATE $</label><input type="number" id="holdCap" value="1000"></div>
-        <div class="form-group"><label>CURRENT BTC $</label><input type="number" id="holdBTC" value="500"></div>
-        <div class="form-group"><label>CURRENT GMT $</label><input type="number" id="holdGMT" value="300"></div>
-        <div class="form-group"><label>RISK TOLERANCE</label>
-          <select id="holdRisk"><option value="conservative">Conservative</option><option value="moderate" selected>Moderate</option><option value="aggressive">Aggressive</option></select>
+        <!-- ROI CALCULATOR TAB -->
+        <div id="calculator" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><span>⚙️</span><span class="card-title">YOUR STATS</span></div>
+                    <div class="input-group"><label>Your TH Power</label><input type="number" id="yourTH" value="50"></div>
+                    <div class="input-group"><label>Clan Total TH</label><input type="number" id="clanTH" value="5000"></div>
+                    <div class="input-group"><label>League</label>
+                        <select id="yourLeague">
+                            <option value="dune">Dune</option>
+                            <option value="horizon" selected>Horizon</option>
+                            <option value="eclipse">Eclipse</option>
+                            <option value="odyssey">Odyssey</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>💎</span><span class="card-title">BOOST CALC</span></div>
+                    <div class="input-group"><label>Boost Cost (GMT)</label><input type="number" id="boostCost" value="100"></div>
+                    <div class="input-group"><label>Token Price ($)</label><input type="number" id="tokenPrice" value="0.50" step="0.01"></div>
+                    <div class="input-group"><label>Multiplier</label></div>
+                    <div class="multiplier-grid">
+                        <button class="multiplier-btn" data-mult="1">x1</button>
+                        <button class="multiplier-btn active" data-mult="2">x2</button>
+                        <button class="multiplier-btn" data-mult="4">x4</button>
+                        <button class="multiplier-btn" data-mult="8">x8</button>
+                        <button class="multiplier-btn" data-mult="16">x16</button>
+                        <button class="multiplier-btn" data-mult="32">x32</button>
+                        <button class="multiplier-btn" data-mult="64">x64</button>
+                        <button class="multiplier-btn" data-mult="128">x128</button>
+                        <button class="multiplier-btn" data-mult="256">x256</button>
+                    </div>
+                    <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="calcROI()">CALCULATE</button>
+                </div>
+            </div>
+            <div class="card"><div class="card-header"><span>📊</span><span class="card-title">RESULTS</span></div><div id="roiResults"><div class="info-panel">Enter stats and click Calculate</div></div></div>
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>HORIZON</label>
-          <select id="holdHorizon"><option value="3">3 months</option><option value="6" selected>6 months</option><option value="12">12 months</option></select>
+
+        <!-- TRACKER TAB -->
+        <div id="tracker" class="tab-content">
+            <div class="alert alert-info">💾 Data saved locally in your browser</div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><span>➕</span><span class="card-title">ADD ENTRY</span></div>
+                    <div class="input-group"><label>Type</label>
+                        <select id="entryType">
+                            <option value="spent">🔴 Spent</option>
+                            <option value="earned">🟢 Earned</option>
+                            <option value="btc">₿ BTC</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group"><label>Amount</label><input type="number" id="entryAmt" value="0" step="0.00000001"></div>
+                        <div class="input-group"><label>Multiplier</label>
+                            <select id="entryMult"><option>x1</option><option>x2</option><option>x4</option><option selected>x8</option><option>x16</option><option>x32</option><option>x64</option><option>x128</option><option>x256</option></select>
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Notes</label><input type="text" id="entryNotes" placeholder="Optional"></div>
+                    <button class="btn btn-primary btn-block" onclick="addEntry()">ADD</button>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>📊</span><span class="card-title">THIS WEEK</span></div>
+                    <div class="summary-row"><span>Spent</span><span class="stat-value negative" id="wkSpent">0</span></div>
+                    <div class="summary-row"><span>Earned</span><span class="stat-value positive" id="wkEarned">0</span></div>
+                    <div class="summary-row"><span>BTC</span><span class="stat-value" id="wkBTC">0</span></div>
+                    <div class="summary-row"><span>Net</span><span class="stat-value" id="wkNet">0</span></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" style="justify-content:space-between"><div style="display:flex;gap:10px"><span>📜</span><span class="card-title">HISTORY</span></div>
+                    <div><button class="btn btn-secondary btn-sm" onclick="exportData()">Export</button> <button class="btn btn-danger btn-sm" onclick="clearData()">Clear</button></div>
+                </div>
+                <div id="history"><div class="info-panel">No entries yet</div></div>
+            </div>
         </div>
-        <div class="form-group"><label>GOAL</label>
-          <select id="holdGoal"><option value="income">Max Passive Income</option><option value="growth" selected>Balance Growth</option><option value="appreciation">Max Appreciation</option></select>
+
+        <!-- CLANS TAB -->
+        <div id="clans" class="tab-content">
+            <div class="alert alert-info">💡 Enter clan stats to compare</div>
+            <div class="card">
+                <div class="card-header"><span>➕</span><span class="card-title">ADD CLAN</span></div>
+                <div class="grid-2">
+                    <div>
+                        <div class="input-group"><label>Clan Name</label><input type="text" id="clanName" placeholder="Name"></div>
+                        <div class="input-row">
+                            <div class="input-group"><label>Total TH</label><input type="number" id="clanPower" value="10000"></div>
+                            <div class="input-group"><label>Members</label><input type="number" id="clanMembers" value="50"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="input-row">
+                            <div class="input-group"><label>Wins/Week</label><input type="number" id="clanWins" value="10"></div>
+                            <div class="input-group"><label>Rewards</label><input type="number" id="clanRewards" value="5000"></div>
+                        </div>
+                        <div class="input-group"><label>League</label>
+                            <select id="clanLeague"><option>Dune</option><option selected>Horizon</option><option>Eclipse</option><option>Odyssey</option></select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="addClan()">ADD</button>
+            </div>
+            <div class="card">
+                <div class="card-header" style="justify-content:space-between"><div style="display:flex;gap:10px"><span>⚔️</span><span class="card-title">COMPARISON</span></div>
+                    <button class="btn btn-secondary btn-sm" onclick="clearClans()">Clear</button>
+                </div>
+                <div id="clanList"><div class="info-panel">Add clans to compare</div></div>
+            </div>
         </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="calcHoldings()">💰 OPTIMIZE</button></div>
-      <div id="holdResults" style="margin-top:12px;"></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">🔐</span><h3>GMT Holding Benefits</h3></div>
-      <div class="form-row">
-        <div class="form-group"><label>YOUR TH/S</label><input type="number" id="gmtTH" value="29.08"></div>
-        <div class="form-group"><label>DAILY MAINT $</label><input type="number" id="gmtMaint" value="0.15" step="0.01"></div>
-        <div class="form-group"><label>TARGET DISCOUNT</label>
-          <select id="gmtTgtDisc"><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option></select>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-purple" onclick="analyzeGMT()">🔐 ANALYZE</button></div>
-      <div id="gmtResults" style="margin-top:12px;"></div>
-    </div>`,
 
-  strategy: `
-    <div class="card">
-      <div class="card-header"><span class="icon">🎯</span><h3>Strategic Recommendations</h3></div>
-      <div id="liveStrat"></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">⚔️</span><h3>Miner Wars vs Mining Mode</h3></div>
-      <div class="form-row">
-        <div class="form-group"><label>YOUR TH/S</label><input type="number" id="modeYourTH" value="29.08"></div>
-        <div class="form-group"><label>CLAN TH/S</label><input type="number" id="modeClanTH" value="19378"></div>
-        <div class="form-group"><label>CLAN SCORE %</label><input type="number" id="modeClanShare" value="2.63" step="0.01"></div>
-        <div class="form-group"><label>WEEKLY GMT BUDGET</label><input type="number" id="modeWeekBudget" value="500"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="analyzeMode()">⚔️ ANALYZE</button></div>
-      <div id="modeResults" style="margin-top:12px;"></div>
-    </div>`,
+        <!-- DISCORD BOT TAB -->
 
-  projections: `
-    <div class="card">
-      <div class="card-header"><span class="icon">🔮</span><h3>Bitcoin Price Scenario Projections</h3></div>
-      <div class="alert alert-warn">⚠️ Analyst 2026 forecasts: Bear $75K | Base $110-150K | Bull $175-225K</div>
-      <div class="scenario-grid">
-        <div class="scenario-box bear">
-          <div class="scenario-label">🐻 BEAR</div>
-          <div class="stat-value" style="color:var(--accent-red);">$75,000</div>
-          <div class="divider"></div>
-          <div class="stat-label">DAILY NET</div><div class="stat-value" id="projBearDay">$--</div>
-          <div class="stat-label">YEARLY</div><div class="stat-value" id="projBearYr">$--</div>
-        </div>
-        <div class="scenario-box base">
-          <div class="scenario-label">📊 BASE</div>
-          <div class="stat-value" style="color:var(--accent-amber);">$125,000</div>
-          <div class="divider"></div>
-          <div class="stat-label">DAILY NET</div><div class="stat-value" id="projBaseDay">$--</div>
-          <div class="stat-label">YEARLY</div><div class="stat-value" id="projBaseYr">$--</div>
-        </div>
-        <div class="scenario-box bull">
-          <div class="scenario-label">🐂 BULL</div>
-          <div class="stat-value" style="color:var(--accent-green);">$200,000</div>
-          <div class="divider"></div>
-          <div class="stat-label">DAILY NET</div><div class="stat-value" id="projBullDay">$--</div>
-          <div class="stat-label">YEARLY</div><div class="stat-value" id="projBullYr">$--</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="form-row">
-        <div class="form-group"><label>YOUR TH/S</label><input type="number" id="projTH" value="29.08"></div>
-        <div class="form-group"><label>W/TH</label><input type="number" id="projEE" value="17.75"></div>
-        <div class="form-group"><label>DISCOUNT %</label><input type="number" id="projDisc" value="23" min="0" max="29"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="calcProjections()">🔮 UPDATE</button></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">⏰</span><h3>TH/s Purchase Timing</h3></div>
-      <div class="alert alert-info">💡 Buy TH/s now or wait? Analysis based on price projections</div>
-      <div id="timingAnalysis"></div>
-      <div class="form-row" style="margin-top:10px;">
-        <div class="form-group"><label>CURRENT TH COST $</label><input type="number" id="timeCurCost" value="55"></div>
-        <div class="form-group"><label>TH TO BUY</label><input type="number" id="timeTHbuy" value="50"></div>
-        <div class="form-group"><label>6MO EST COST $</label><input type="number" id="timeFutCost" value="70"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-purple" onclick="analyzeTiming()">⏰ ANALYZE</button></div>
-      <div id="timingResults" style="margin-top:12px;"></div>
-    </div>`,
-
-  tracker: `
-    <div class="card">
-      <div class="card-header"><span class="icon">➕</span><h3>Log Miner Wars Round</h3></div>
-      <div class="form-row">
-        <div class="form-group"><label>DATE</label><input type="date" id="logDate"></div>
-        <div class="form-group"><label>MULTIPLIER</label>
-          <select id="logMult"><option>x1</option><option>x2</option><option>x4</option><option selected>x8</option><option>x16</option><option>x32</option><option>x64</option><option>x128</option><option>x256</option></select>
-        </div>
-        <div class="form-group"><label>GMT SPENT</label><input type="number" id="logSpent" value="0"></div>
-        <div class="form-group"><label>GMT EARNED</label><input type="number" id="logEarned" value="0" step="0.01"></div>
-        <div class="form-group"><label>WON BLOCK?</label>
-          <select id="logWon"><option value="no">No</option><option value="personal">Personal</option><option value="clan">Clan</option></select>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="addEntry()">➕ LOG</button></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">📊</span><h3>Miner Wars Summary</h3></div>
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-label">SPENT</div><div class="stat-value neg" id="trkSpent">0</div><div class="stat-sub">GMT</div></div>
-        <div class="stat-box"><div class="stat-label">EARNED</div><div class="stat-value pos" id="trkEarned">0</div><div class="stat-sub">GMT</div></div>
-        <div class="stat-box"><div class="stat-label">NET</div><div class="stat-value" id="trkNet">0</div><div class="stat-sub">GMT</div></div>
-        <div class="stat-box"><div class="stat-label">ROI</div><div class="stat-value" id="trkROI">0%</div></div>
-        <div class="stat-box"><div class="stat-label">BLOCKS</div><div class="stat-value neu" id="trkBlocks">0</div></div>
-        <div class="stat-box"><div class="stat-label">ROUNDS</div><div class="stat-value neu" id="trkRounds">0</div></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">📜</span><h3>History</h3></div>
-      <div style="overflow-x:auto;"><table><thead><tr><th>DATE</th><th>MULT</th><th>SPENT</th><th>EARNED</th><th>NET</th><th>WON</th><th></th></tr></thead><tbody id="logTable"></tbody></table></div>
-    </div>`,
-
-  scanner: `
-    <div class="card">
-      <div class="card-header"><span class="icon">🔍</span><h3>Marketplace Scanner</h3></div>
-      <div class="alert alert-info">💡 Evaluate miner deals instantly. Enter listing details to see if it's worth buying.</div>
-      <div class="form-row">
-        <div class="form-group"><label>LISTING PRICE ($)</label><input type="number" id="scanPrice" placeholder="500" step="1"></div>
-        <div class="form-group"><label>TH/S POWER</label><input type="number" id="scanTH" placeholder="10" step="0.01"></div>
-        <div class="form-group"><label>W/TH EFFICIENCY</label><input type="number" id="scanEE" placeholder="15" step="0.01"></div>
-        <div class="form-group"><label>MINER NAME (optional)</label><input type="text" id="scanName" placeholder="e.g. Rare Dragon"></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="evaluateDeal()">🔍 EVALUATE DEAL</button>
-        <button class="btn btn-ghost" onclick="clearScanner()">CLEAR</button>
-      </div>
-      <div id="scanResults" style="margin-top:12px;"></div>
-    </div>
-    
-    <div class="card">
-      <div class="card-header"><span class="icon">🚨</span><h3>Deal Alert Thresholds</h3></div>
-      <div class="alert alert-warn">⚠️ Set your "great deal" thresholds. Listings below these = instant alerts!</div>
-      <div class="form-row">
-        <div class="form-group"><label>MAX $/TH (Good Deal)</label><input type="number" id="alertMaxCostTH" value="50" step="1"></div>
-        <div class="form-group"><label>MAX $/TH (Great Deal)</label><input type="number" id="alertGreatCostTH" value="40" step="1"></div>
-        <div class="form-group"><label>MAX W/TH EFFICIENCY</label><input type="number" id="alertMaxEE" value="18" step="0.1"></div>
-        <div class="form-group"><label>MAX BREAK-EVEN (months)</label><input type="number" id="alertMaxBreakeven" value="18" step="1"></div>
-      </div>
-      <div class="divider"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-        <div><strong class="text-cyan">🔔 Alert Options</strong><br><span class="text-dim" style="font-size:0.55rem;">Sound plays + popup shows when great deal found</span></div>
-        <button class="btn btn-ghost" onclick="requestNotificationPermission()">📲 Enable Browser Notifications</button>
-      </div>
-      <div class="btn-row" style="margin-top:10px;">
-        <button class="btn btn-purple" onclick="saveAlertThresholds()">💾 SAVE THRESHOLDS</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><span class="icon">📊</span><h3>Market Benchmarks</h3></div>
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-label">AVG $/TH</div><div class="stat-value neu">$55</div><div class="stat-sub">Marketplace avg</div></div>
-        <div class="stat-box"><div class="stat-label">GOOD DEAL</div><div class="stat-value pos">&lt;$50/TH</div><div class="stat-sub">10%+ below avg</div></div>
-        <div class="stat-box"><div class="stat-label">GREAT DEAL</div><div class="stat-value" style="color:var(--accent-gold);">&lt;$40/TH</div><div class="stat-sub">25%+ below avg</div></div>
-        <div class="stat-box"><div class="stat-label">BEST EFF</div><div class="stat-value pos">15 W/TH</div><div class="stat-sub">Target efficiency</div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><span class="icon">📉</span><h3>Price Drop Alerts</h3></div>
-      <div class="alert alert-info">💡 Track miner types and get alerted when prices drop below your target!</div>
-      <div class="form-row">
-        <div class="form-group"><label>MINER TYPE/NAME</label><input type="text" id="priceAlertName" placeholder="e.g. Rare Dragon, Epic Phoenix"></div>
-        <div class="form-group"><label>TARGET TH/s</label><input type="number" id="priceAlertTH" placeholder="10" step="0.1"></div>
-        <div class="form-group"><label>MAX PRICE ($)</label><input type="number" id="priceAlertMaxPrice" placeholder="400"></div>
-        <div class="form-group"><label>MAX $/TH</label><input type="number" id="priceAlertMaxCostTH" placeholder="40"></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="addPriceAlert()">🔔 ADD PRICE ALERT</button>
-      </div>
-      <div class="divider"></div>
-      <div id="priceAlertsList"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><span class="icon">⭐</span><h3>Saved Deals Watchlist</h3></div>
-      <div class="alert alert-warn">💰 Track prices over time. Click "Update Price" when you see a new listing!</div>
-      <div style="overflow-x:auto;"><table>
-        <thead><tr><th>NAME</th><th>LAST PRICE</th><th>TH</th><th>$/TH</th><th>TARGET</th><th>TREND</th><th>ALERT</th><th></th></tr></thead>
-        <tbody id="watchlistTable"></tbody>
-      </table></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><span class="icon">📊</span><h3>Price History</h3></div>
-      <div class="alert alert-info">📈 Select a watchlist item to see price history</div>
-      <div class="form-row">
-        <div class="form-group" style="flex:2;"><label>SELECT MINER</label>
-          <select id="historySelect" onchange="showPriceHistory()">
-            <option value="">-- Select from watchlist --</option>
-          </select>
-        </div>
-      </div>
-      <div id="priceHistoryChart" style="margin-top:10px;"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><span class="icon">💡</span><h3>Deal Hunting Tips</h3></div>
-      <div class="ev-box">
-        <div>🔹 <strong>Check marketplace during off-peak hours</strong> (late night/early morning UTC) for better deals</div>
-        <div>🔹 <strong>Rare/Epic/Legendary miners</strong> often have better base stats but higher prices - calculate $/TH</div>
-        <div>🔹 <strong>Lower W/TH = lower fees</strong> = higher net profit. 15 W/TH is optimal.</div>
-        <div>🔹 <strong>Compare to creating a new miner</strong> - sometimes fresh mints are cheaper than resales</div>
-        <div>🔹 <strong>Factor in BTC price outlook</strong> - if you're bullish, break-even times shrink</div>
-      </div>
-    </div>`,
-
-  settings: `
-    <div class="card">
-      <div class="card-header"><span class="icon">⚙️</span><h3>Your Mining Setup</h3></div>
-      <div class="form-row">
-        <div class="form-group"><label>YOUR TH/S</label><input type="number" id="setTH" value="29.08"></div>
-        <div class="form-group"><label>YOUR W/TH</label><input type="number" id="setEE" value="17.75"></div>
-        <div class="form-group"><label>TOTAL DISCOUNT %</label><input type="number" id="setDisc" value="23" min="0" max="29"></div>
-        <div class="form-group"><label>SATS/TH/DAY</label><input type="number" id="setSats" value="38"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>CLAN NAME</label><input type="text" id="setClan" value="🌀 GravitationaL 🌀"></div>
-        <div class="form-group"><label>CLAN TH/S</label><input type="number" id="setClanTH" value="19378"></div>
-        <div class="form-group"><label>CLAN SCORE %</label><input type="number" id="setClanShare" value="2.63" step="0.01"></div>
-        <div class="form-group"><label>LEAGUE</label>
-          <select id="setLeague"><option>Dune</option><option>Horizon</option><option selected>Odyssey</option><option>Titan</option><option>Apex</option></select>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="saveSettings()">💾 SAVE</button></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="icon">💾</span><h3>Data Management</h3></div>
-      <div class="alert alert-warn">⚠️ Data saved in browser localStorage. Export for backup!</div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="exportData()">📤 EXPORT JSON</button>
-        <button class="btn btn-purple" onclick="exportCSV()">📊 EXPORT CSV</button>
-        <button class="btn btn-ghost" onclick="document.getElementById('impFile').click()">📥 IMPORT</button>
-        <input type="file" id="impFile" accept=".json" style="display:none" onchange="importData(event)">
-      </div>
-      <div class="divider"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div><strong class="text-red">DANGER ZONE</strong><br><span class="text-dim" style="font-size:0.6rem;">Delete all data</span></div>
-        <button class="btn btn-ghost" style="border-color:var(--accent-red);color:var(--accent-red);" onclick="nukeData()">🗑️ RESET</button>
-      </div>
-    </div>`
-};
-
-// =====================================================
-// PART 3: DATA & STATE MANAGEMENT
-// =====================================================
-const STORAGE_KEY = 'gm_strategic_roi';
-let data = {
-  settings: { th: 29.08, ee: 17.75, disc: 23, sats: 38, clanTH: 19378, clanShare: 2.63, clan: '🌀 GravitationaL 🌀', league: 'Odyssey' },
-  entries: [],
-  prices: { btc: 0, gmt: 0, btc24h: 0, gmt24h: 0, sats: 38, lastUpdate: null },
-  watchlist: [],
-  priceAlerts: [],
-  alerts: { 
-    maxCostTH: 50, 
-    greatCostTH: 40, 
-    maxEE: 18, 
-    maxBreakeven: 18,
-    soundEnabled: true,
-    browserNotify: false
-  }
-};
-
-function saveData() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
-function loadData() { try { const s = localStorage.getItem(STORAGE_KEY); if(s) data = {...data, ...JSON.parse(s)}; } catch(e) {} }
-
-// =====================================================
-// TAB SWITCHING
-// =====================================================
-function switchTab(id) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('tabContent').innerHTML = tabTemplates[id] || '';
-  
-  // Initialize tab-specific content
-  if(id === 'dashboard') initDashboard();
-  if(id === 'tracker') { initTracker(); renderEntries(); }
-  if(id === 'settings') loadSettingsForm();
-  if(id === 'projections') calcProjections();
-  if(id === 'strategy') generateStrategy();
-  if(id === 'scanner') initScanner();
-}
-
-// =====================================================
-// PRICE FETCHING (CoinGecko Free API)
-// =====================================================
-async function fetchPrices() {
-  const apiUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,gomining-token&vs_currencies=usd&include_24hr_change=true';
-  
-  // Try direct first, then CORS proxies as fallback
-  const endpoints = [
-    apiUrl,
-    'https://corsproxy.io/?' + encodeURIComponent(apiUrl),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl)
-  ];
-  
-  for(const url of endpoints) {
-    try {
-      const res = await fetch(url, { timeout: 5000 });
-      if(!res.ok) continue;
-      
-      const d = await res.json();
-      if(!d.bitcoin) continue; // Invalid response
-      
-      data.prices.btc = d.bitcoin?.usd || 0;
-      data.prices.btc24h = d.bitcoin?.usd_24h_change || 0;
-      data.prices.gmt = d['gomining-token']?.usd || 0;
-      data.prices.gmt24h = d['gomining-token']?.usd_24h_change || 0;
-      data.prices.lastUpdate = new Date();
-      data.prices.sats = data.settings.sats || 38;
-      
-      updatePriceTicker();
-      saveData();
-      console.log('✅ Prices loaded successfully');
-      return; // Success, exit
-    } catch(e) {
-      console.log('Trying next endpoint...');
-    }
-  }
-  
-  // All failed - use cached or defaults
-  console.log('⚠️ Price fetch failed, using cached/defaults');
-  if(!data.prices.btc) {
-    data.prices.btc = 97000;
-    data.prices.gmt = 0.32;
-    data.prices.btc24h = 0;
-    data.prices.gmt24h = 0;
-  }
-  updatePriceTicker();
-}
-
-function updatePriceTicker() {
-  const p = data.prices;
-  document.getElementById('btcPrice').textContent = p.btc ? '$' + p.btc.toLocaleString() : '$--,---';
-  document.getElementById('gmtPrice').textContent = p.gmt ? '$' + p.gmt.toFixed(3) : '$-.--';
-  
-  const btcChg = document.getElementById('btcChange');
-  btcChg.textContent = (p.btc24h >= 0 ? '+' : '') + (p.btc24h?.toFixed(1) || 0) + '%';
-  btcChg.className = 'price-change ' + (p.btc24h >= 0 ? 'up' : 'down');
-  
-  const gmtChg = document.getElementById('gmtChange');
-  gmtChg.textContent = (p.gmt24h >= 0 ? '+' : '') + (p.gmt24h?.toFixed(1) || 0) + '%';
-  gmtChg.className = 'price-change ' + (p.gmt24h >= 0 ? 'up' : 'down');
-  
-  document.getElementById('satsPerTH').textContent = p.sats + ' sats';
-  document.getElementById('priceTime').textContent = p.lastUpdate ? new Date(p.lastUpdate).toLocaleTimeString() : '--:--';
-}
-
-// =====================================================
-// MINING CALCULATIONS (GoMining Formulas)
-// =====================================================
-function calcMiningRewards(th, ee, discPct, btcPrice, satsPerTH, elecCost = 0.05, servCost = 0.0089) {
-  // Gross reward in sats
-  const grossSats = th * satsPerTH;
-  const grossBTC = grossSats / 1e8;
-  const grossUSD = grossBTC * btcPrice;
-  
-  // Electricity cost: (kWh * 24 / 1000) * W/TH * TH = daily watts, then * $/kWh
-  const dailyWatts = (ee * th * 24) / 1000; // kWh
-  const elecUSD = dailyWatts * elecCost;
-  const elecBTC = elecUSD / btcPrice;
-  
-  // Service cost: $0.0089 * TH / BTC price
-  const servUSD = servCost * th;
-  const servBTC = servUSD / btcPrice;
-  
-  // Total maintenance
-  const maintUSD = elecUSD + servUSD;
-  const maintBTC = elecBTC + servBTC;
-  
-  // Apply discount
-  const discMult = 1 - (discPct / 100);
-  const netMaintUSD = maintUSD * discMult;
-  const netMaintBTC = maintBTC * discMult;
-  
-  // Net reward
-  const netBTC = grossBTC - netMaintBTC;
-  const netSats = netBTC * 1e8;
-  const netUSD = netBTC * btcPrice;
-  
-  return { grossSats, grossBTC, grossUSD, elecUSD, servUSD, maintUSD, netMaintUSD, netBTC, netSats, netUSD, discPct };
-}
-
-function calculateMining() {
-  const th = parseFloat(document.getElementById('calcTH').value) || 0;
-  const ee = parseFloat(document.getElementById('calcEE').value) || 20;
-  const elec = parseFloat(document.getElementById('calcElec').value) || 0.05;
-  const serv = parseFloat(document.getElementById('calcServ').value) || 0.0089;
-  const tokenDisc = parseFloat(document.getElementById('calcTokenDisc').value) || 0;
-  const servDisc = parseFloat(document.getElementById('calcServDisc').value) || 0;
-  const vipDisc = parseFloat(document.getElementById('calcVIPDisc').value) || 0;
-  const sats = parseFloat(document.getElementById('calcSats').value) || 38;
-  const btcPrice = data.prices.btc || 97000;
-  
-  const totalDisc = Math.min(tokenDisc + servDisc + vipDisc, 29);
-  const r = calcMiningRewards(th, ee, totalDisc, btcPrice, sats, elec, serv);
-  
-  const profitClass = r.netUSD > 0 ? 'pos' : 'neg';
-  
-  document.getElementById('miningResults').innerHTML = `
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-label">GROSS/DAY</div><div class="stat-value btc">${Math.round(r.grossSats).toLocaleString()} sats</div><div class="stat-sub">$${r.grossUSD.toFixed(2)}</div></div>
-      <div class="stat-box"><div class="stat-label">ELECTRICITY</div><div class="stat-value neg">-$${r.elecUSD.toFixed(3)}</div></div>
-      <div class="stat-box"><div class="stat-label">SERVICE</div><div class="stat-value neg">-$${r.servUSD.toFixed(3)}</div></div>
-      <div class="stat-box"><div class="stat-label">TOTAL MAINT</div><div class="stat-value neg">-$${r.maintUSD.toFixed(3)}</div></div>
-      <div class="stat-box hl-green"><div class="stat-label">DISCOUNT</div><div class="stat-value gmt">${totalDisc}%</div><div class="stat-sub">Saves $${(r.maintUSD - r.netMaintUSD).toFixed(3)}/day</div></div>
-      <div class="stat-box hl-green"><div class="stat-label">NET/DAY</div><div class="stat-value ${profitClass}">${Math.round(r.netSats).toLocaleString()} sats</div><div class="stat-sub">$${r.netUSD.toFixed(2)}</div></div>
-      <div class="stat-box"><div class="stat-label">NET/MONTH</div><div class="stat-value gold">$${(r.netUSD * 30).toFixed(2)}</div></div>
-      <div class="stat-box"><div class="stat-label">NET/YEAR</div><div class="stat-value gold">$${(r.netUSD * 365).toFixed(2)}</div></div>
-    </div>
-  `;
-}
-
-function useLiveSats() {
-  document.getElementById('calcSats').value = data.prices.sats || 38;
-}
-
-// =====================================================
-// DASHBOARD
-// =====================================================
-function initDashboard() {
-  const s = data.settings;
-  const btcPrice = data.prices.btc || 97000;
-  const r = calcMiningRewards(s.th, s.ee, s.disc, btcPrice, s.sats);
-  
-  document.getElementById('dashTH').textContent = s.th;
-  document.getElementById('dashEE').textContent = s.ee;
-  document.getElementById('dashGross').textContent = Math.round(r.grossSats).toLocaleString() + ' sats';
-  document.getElementById('dashNet').textContent = Math.round(r.netSats).toLocaleString() + ' sats';
-  document.getElementById('dashDayUSD').textContent = '$' + r.netUSD.toFixed(2);
-  document.getElementById('dashMonUSD').textContent = '$' + (r.netUSD * 30).toFixed(2);
-  document.getElementById('dashYrUSD').textContent = '$' + (r.netUSD * 365).toFixed(2);
-  document.getElementById('dashDisc').textContent = s.disc + '%';
-  
-  // Strategy brief
-  generateStrategyBrief();
-}
-
-function generateStrategyBrief() {
-  const s = data.settings;
-  const btcPrice = data.prices.btc || 97000;
-  const gmtPrice = data.prices.gmt || 0.32;
-  
-  let html = '';
-  
-  // TH strategy
-  if(s.th < 50) {
-    html += `<div class="strat-card recommended"><h4 class="text-green">📈 GROW TH/S</h4><p>At ${s.th} TH, focus on accumulating more hashpower. Target 75+ TH for meaningful passive income. Consider reinvesting 50-75% of earnings.</p></div>`;
-  } else if(s.th < 200) {
-    html += `<div class="strat-card cautious"><h4 class="text-amber">📊 BALANCED APPROACH</h4><p>At ${s.th} TH, you're in mid-range. Balance between TH growth and taking profits. Consider 50% reinvest, 50% hold.</p></div>`;
-  } else {
-    html += `<div class="strat-card recommended"><h4 class="text-green">💎 OPTIMIZE & HOLD</h4><p>At ${s.th} TH, you have solid hashpower. Focus on maximizing discounts and efficiency upgrades over raw TH growth.</p></div>`;
-  }
-  
-  // GMT holding strategy
-  if(s.disc < 20) {
-    html += `<div class="strat-card cautious"><h4 class="text-amber">🔐 BOOST GMT HOLDINGS</h4><p>Your ${s.disc}% discount is below max 20% token discount. Hold more GMT to cover 360 days maintenance for max savings.</p></div>`;
-  }
-  
-  // BTC price outlook
-  if(btcPrice < 90000) {
-    html += `<div class="strat-card recommended"><h4 class="text-green">🐂 BUY THE DIP</h4><p>BTC at $${btcPrice.toLocaleString()} is below analyst base case ($110-150K). Consider accumulating TH/s now before price increases make it less attractive.</p></div>`;
-  } else if(btcPrice > 150000) {
-    html += `<div class="strat-card cautious"><h4 class="text-amber">⚠️ CONSIDER TAKING PROFITS</h4><p>BTC at $${btcPrice.toLocaleString()} is above base case. Consider converting some mining rewards to stablecoins or fiat.</p></div>`;
-  }
-  
-  document.getElementById('stratBrief').innerHTML = html || '<div class="alert alert-info">Configure your setup in Settings to get personalized recommendations.</div>';
-}
-
-
-// =====================================================
-// GROWTH CALCULATOR
-// =====================================================
-function calcGrowth() {
-  const curTH = parseFloat(document.getElementById('growCurTH').value) || 0;
-  const tgtTH = parseFloat(document.getElementById('growTgtTH').value) || 100;
-  const costTH = parseFloat(document.getElementById('growCostTH').value) || 55;
-  const tgtEE = parseFloat(document.getElementById('growTgtEE').value) || 15;
-  const btcPrice = data.prices.btc || 97000;
-  const sats = data.settings.sats || 38;
-  const disc = data.settings.disc || 23;
-  
-  const thNeeded = tgtTH - curTH;
-  const totalCost = thNeeded * costTH;
-  
-  // Current earnings
-  const curRewards = calcMiningRewards(curTH, data.settings.ee, disc, btcPrice, sats);
-  // Target earnings (better efficiency)
-  const tgtRewards = calcMiningRewards(tgtTH, tgtEE, disc, btcPrice, sats);
-  
-  const dailyIncrease = tgtRewards.netUSD - curRewards.netUSD;
-  const monthlyIncrease = dailyIncrease * 30;
-  const breakEvenDays = dailyIncrease > 0 ? Math.ceil(totalCost / dailyIncrease) : Infinity;
-  const breakEvenMonths = (breakEvenDays / 30).toFixed(1);
-  const roi1yr = ((tgtRewards.netUSD * 365) / totalCost * 100).toFixed(1);
-  
-  // Scenario projections
-  const projections = [
-    { name: 'Bear ($75K)', btc: 75000, daily: calcMiningRewards(tgtTH, tgtEE, disc, 75000, sats).netUSD },
-    { name: 'Base ($125K)', btc: 125000, daily: calcMiningRewards(tgtTH, tgtEE, disc, 125000, sats).netUSD },
-    { name: 'Bull ($200K)', btc: 200000, daily: calcMiningRewards(tgtTH, tgtEE, disc, 200000, sats).netUSD }
-  ];
-  
-  document.getElementById('growthResults').innerHTML = `
-    <div class="verdict-box" style="background:var(--accent-cyan-dim);border:1px solid var(--accent-cyan);">
-      <h4 class="text-cyan">GROWTH PLAN: ${curTH} → ${tgtTH} TH/s</h4>
-      <p>Investment: $${totalCost.toLocaleString()} | Break-even: ${breakEvenMonths} months | 1-Year ROI: ${roi1yr}%</p>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-label">TH TO BUY</div><div class="stat-value neu">${thNeeded.toFixed(1)}</div></div>
-      <div class="stat-box"><div class="stat-label">TOTAL COST</div><div class="stat-value neg">$${totalCost.toLocaleString()}</div></div>
-      <div class="stat-box"><div class="stat-label">CURRENT DAILY</div><div class="stat-value gold">$${curRewards.netUSD.toFixed(2)}</div></div>
-      <div class="stat-box hl-green"><div class="stat-label">TARGET DAILY</div><div class="stat-value pos">$${tgtRewards.netUSD.toFixed(2)}</div></div>
-      <div class="stat-box"><div class="stat-label">DAILY INCREASE</div><div class="stat-value pos">+$${dailyIncrease.toFixed(2)}</div></div>
-      <div class="stat-box"><div class="stat-label">BREAK-EVEN</div><div class="stat-value neu">${breakEvenDays} days</div></div>
-    </div>
-    <div class="divider"></div>
-    <h4 style="font-family:'Orbitron';font-size:0.6rem;margin-bottom:8px;color:var(--text-dim);">SCENARIO PROJECTIONS AT ${tgtTH} TH</h4>
-    <div class="stat-grid">
-      ${projections.map(p => `
-        <div class="stat-box"><div class="stat-label">${p.name}</div><div class="stat-value gold">$${p.daily.toFixed(2)}/day</div><div class="stat-sub">$${(p.daily*365).toFixed(0)}/yr</div></div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function calcReinvest() {
-  const monthlyNet = parseFloat(document.getElementById('reinvMonth').value) || 50;
-  const rate = parseFloat(document.getElementById('reinvRate').value) / 100;
-  const months = parseInt(document.getElementById('reinvMonths').value) || 12;
-  const costTH = 55; // avg cost per TH
-  const btcPrice = data.prices.btc || 97000;
-  const sats = data.settings.sats || 38;
-  const disc = data.settings.disc || 23;
-  
-  let th = data.settings.th;
-  let totalInvested = 0;
-  let projections = [];
-  
-  for(let m = 1; m <= months; m++) {
-    const rewards = calcMiningRewards(th, 17, disc, btcPrice, sats);
-    const monthlyEarn = rewards.netUSD * 30;
-    const reinvest = monthlyEarn * rate;
-    const newTH = reinvest / costTH;
-    th += newTH;
-    totalInvested += reinvest;
-    
-    if(m % 3 === 0 || m === months) {
-      projections.push({ month: m, th: th.toFixed(1), monthly: monthlyEarn.toFixed(2), invested: totalInvested.toFixed(0) });
-    }
-  }
-  
-  const finalRewards = calcMiningRewards(th, 17, disc, btcPrice, sats);
-  
-  document.getElementById('reinvestResults').innerHTML = `
-    <div class="verdict-box" style="background:var(--accent-purple-dim);border:1px solid var(--accent-purple);">
-      <h4 class="text-gmt">🔄 COMPOUND PROJECTION</h4>
-      <p>After ${months} months at ${rate*100}% reinvestment: ${th.toFixed(1)} TH/s | $${(finalRewards.netUSD*30).toFixed(2)}/mo</p>
-    </div>
-    <div style="overflow-x:auto;"><table>
-      <thead><tr><th>MONTH</th><th>TH/S</th><th>MONTHLY $</th><th>TOTAL INVESTED</th></tr></thead>
-      <tbody>${projections.map(p => `<tr><td>${p.month}</td><td>${p.th}</td><td>$${p.monthly}</td><td>$${p.invested}</td></tr>`).join('')}</tbody>
-    </table></div>
-  `;
-}
-
-// =====================================================
-// HOLDINGS OPTIMIZER
-// =====================================================
-function calcHoldings() {
-  const capital = parseFloat(document.getElementById('holdCap').value) || 1000;
-  const curBTC = parseFloat(document.getElementById('holdBTC').value) || 0;
-  const curGMT = parseFloat(document.getElementById('holdGMT').value) || 0;
-  const risk = document.getElementById('holdRisk').value;
-  const horizon = parseInt(document.getElementById('holdHorizon').value);
-  const goal = document.getElementById('holdGoal').value;
-  
-  const btcPrice = data.prices.btc || 97000;
-  const gmtPrice = data.prices.gmt || 0.32;
-  
-  // Strategy allocations based on risk/goal
-  let allocations = { btc: 0, gmt: 0, th: 0 };
-  
-  if(goal === 'income') {
-    // Max passive income = more TH
-    allocations = risk === 'conservative' ? { btc: 20, gmt: 30, th: 50 } :
-                  risk === 'aggressive' ? { btc: 10, gmt: 20, th: 70 } :
-                  { btc: 15, gmt: 25, th: 60 };
-  } else if(goal === 'appreciation') {
-    // Max appreciation = more BTC
-    allocations = risk === 'conservative' ? { btc: 50, gmt: 20, th: 30 } :
-                  risk === 'aggressive' ? { btc: 70, gmt: 10, th: 20 } :
-                  { btc: 60, gmt: 15, th: 25 };
-  } else {
-    // Balanced
-    allocations = risk === 'conservative' ? { btc: 35, gmt: 30, th: 35 } :
-                  risk === 'aggressive' ? { btc: 30, gmt: 25, th: 45 } :
-                  { btc: 33, gmt: 27, th: 40 };
-  }
-  
-  const btcAlloc = capital * allocations.btc / 100;
-  const gmtAlloc = capital * allocations.gmt / 100;
-  const thAlloc = capital * allocations.th / 100;
-  const thToBuy = thAlloc / 55; // $55/TH avg
-  
-  // Projected values
-  const btcGain = horizon === 3 ? 1.1 : horizon === 6 ? 1.25 : 1.5; // conservative estimates
-  const gmtGain = horizon === 3 ? 1.05 : horizon === 6 ? 1.15 : 1.3;
-  
-  document.getElementById('holdResults').innerHTML = `
-    <div class="verdict-box" style="background:var(--accent-cyan-dim);border:1px solid var(--accent-cyan);">
-      <h4 class="text-cyan">💰 RECOMMENDED ALLOCATION</h4>
-      <p>${risk.toUpperCase()} | ${horizon}-month horizon | Goal: ${goal.toUpperCase()}</p>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-box hl-btc"><div class="stat-label">BTC (${allocations.btc}%)</div><div class="stat-value btc">$${btcAlloc.toFixed(0)}</div><div class="stat-sub">${(btcAlloc/btcPrice).toFixed(6)} BTC</div></div>
-      <div class="stat-box"><div class="stat-label">GMT (${allocations.gmt}%)</div><div class="stat-value gmt">$${gmtAlloc.toFixed(0)}</div><div class="stat-sub">${(gmtAlloc/gmtPrice).toFixed(0)} GMT</div></div>
-      <div class="stat-box hl-green"><div class="stat-label">TH/S (${allocations.th}%)</div><div class="stat-value pos">$${thAlloc.toFixed(0)}</div><div class="stat-sub">${thToBuy.toFixed(1)} TH</div></div>
-    </div>
-    <div class="divider"></div>
-    <div class="strat-card recommended">
-      <h4 class="text-green">📋 ACTION PLAN</h4>
-      <p>1. Buy ${thToBuy.toFixed(1)} TH/s for passive income generation<br>
-         2. Hold ${(gmtAlloc/gmtPrice).toFixed(0)} GMT for maintenance discounts (saves ~${(gmtAlloc/gmtPrice*0.0089*365/gmtPrice).toFixed(0)} GMT/yr)<br>
-         3. Keep ${(btcAlloc/btcPrice).toFixed(6)} BTC for price appreciation exposure</p>
-    </div>
-  `;
-}
-
-function analyzeGMT() {
-  const th = parseFloat(document.getElementById('gmtTH').value) || 29;
-  const dailyMaint = parseFloat(document.getElementById('gmtMaint').value) || 0.15;
-  const targetDisc = parseInt(document.getElementById('gmtTgtDisc').value) || 20;
-  const gmtPrice = data.prices.gmt || 0.32;
-  
-  // Days coverage needed for discount levels: 5%=90days, 10%=180, 15%=270, 20%=360
-  const daysNeeded = targetDisc * 18; // 18 days per 1%
-  const dailyMaintGMT = dailyMaint / gmtPrice;
-  const gmtNeeded = dailyMaintGMT * daysNeeded;
-  const gmtCost = gmtNeeded * gmtPrice;
-  
-  // Savings calculation
-  const yearlySavings = dailyMaint * (targetDisc/100) * 365;
-  const paybackMonths = gmtCost / (yearlySavings/12);
-  
-  document.getElementById('gmtResults').innerHTML = `
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-label">DAYS COVERAGE</div><div class="stat-value neu">${daysNeeded}</div></div>
-      <div class="stat-box"><div class="stat-label">GMT NEEDED</div><div class="stat-value gmt">${gmtNeeded.toFixed(0)}</div></div>
-      <div class="stat-box"><div class="stat-label">USD COST</div><div class="stat-value neg">$${gmtCost.toFixed(2)}</div></div>
-      <div class="stat-box hl-green"><div class="stat-label">YEARLY SAVINGS</div><div class="stat-value pos">$${yearlySavings.toFixed(2)}</div></div>
-      <div class="stat-box"><div class="stat-label">PAYBACK</div><div class="stat-value neu">${paybackMonths.toFixed(1)} mo</div></div>
-    </div>
-    <div class="strat-card ${paybackMonths < 12 ? 'recommended' : 'cautious'}">
-      <h4>${paybackMonths < 12 ? '✅ RECOMMENDED' : '⚠️ MARGINAL'}</h4>
-      <p>Holding ${gmtNeeded.toFixed(0)} GMT ($${gmtCost.toFixed(2)}) gives you ${targetDisc}% discount, saving $${yearlySavings.toFixed(2)}/year. ${paybackMonths < 12 ? 'Pays for itself in under a year!' : 'Consider lower discount tier for better ROI.'}</p>
-    </div>
-  `;
-}
-
-
-// =====================================================
-// STRATEGY ANALYSIS
-// =====================================================
-function generateStrategy() {
-  const s = data.settings;
-  const btcPrice = data.prices.btc || 97000;
-  const gmtPrice = data.prices.gmt || 0.32;
-  
-  let html = '';
-  
-  // Overall market assessment
-  let marketOutlook = 'neutral';
-  if(btcPrice < 85000) marketOutlook = 'bullish';
-  else if(btcPrice > 140000) marketOutlook = 'cautious';
-  
-  html += `<div class="strat-card ${marketOutlook === 'bullish' ? 'recommended' : marketOutlook === 'cautious' ? 'cautious' : ''}">
-    <h4>${marketOutlook === 'bullish' ? '🐂 BULLISH MARKET' : marketOutlook === 'cautious' ? '⚠️ ELEVATED PRICES' : '📊 NEUTRAL MARKET'}</h4>
-    <p>BTC at $${btcPrice.toLocaleString()}. ${marketOutlook === 'bullish' ? 'Good time to accumulate TH/s - prices may rise.' : marketOutlook === 'cautious' ? 'Consider taking some profits and reducing new purchases.' : 'Market in normal range. Steady accumulation recommended.'}</p>
-  </div>`;
-  
-  // TH/s strategy based on holdings
-  if(s.th < 50) {
-    html += `<div class="strat-card recommended"><h4 class="text-green">🎯 PRIORITY: ACCUMULATE TH/S</h4>
-    <p>At ${s.th} TH, your focus should be aggressive TH accumulation. Target 75-100 TH for meaningful passive income. Reinvest 75%+ of earnings.</p></div>`;
-  } else if(s.th < 200) {
-    html += `<div class="strat-card"><h4 class="text-cyan">📊 BALANCED GROWTH</h4>
-    <p>At ${s.th} TH, you're mid-range. Balance TH growth with taking profits. 50% reinvest, 25% BTC hold, 25% cash/stables.</p></div>`;
-  } else {
-    html += `<div class="strat-card recommended"><h4 class="text-green">💎 OPTIMIZE EFFICIENCY</h4>
-    <p>At ${s.th} TH, focus on efficiency upgrades (lower W/TH) over raw TH growth. Maximize discounts. Consider diversifying profits.</p></div>`;
-  }
-  
-  // Discount optimization
-  if(s.disc < 23) {
-    const potentialSavings = (23 - s.disc) / 100 * 0.15 * 365; // rough estimate
-    html += `<div class="strat-card cautious"><h4 class="text-amber">🔐 OPTIMIZE DISCOUNTS</h4>
-    <p>Your ${s.disc}% discount is below optimal 23% (20% token + 3% service). Could save ~$${potentialSavings.toFixed(0)}/year more. Click service button daily!</p></div>`;
-  }
-  
-  // Miner Wars specific
-  html += `<div class="strat-card"><h4 class="text-cyan">⚔️ MINER WARS TIPS</h4>
-  <p>• Only boost on x8+ multipliers<br>• Coordinate with clan for x32+ rounds<br>• Use Echo Boost early in long rounds<br>• Track spending vs rewards carefully</p></div>`;
-  
-  document.getElementById('liveStrat').innerHTML = html;
-}
-
-function analyzeMode() {
-  const yourTH = parseFloat(document.getElementById('modeYourTH').value) || 29;
-  const clanTH = parseFloat(document.getElementById('modeClanTH').value) || 19378;
-  const clanShare = parseFloat(document.getElementById('modeClanShare').value) || 2.63;
-  const weekBudget = parseFloat(document.getElementById('modeWeekBudget').value) || 500;
-  const gmtPrice = data.prices.gmt || 0.32;
-  const btcPrice = data.prices.btc || 97000;
-  
-  // Mining mode daily estimate
-  const miningRewards = calcMiningRewards(yourTH, data.settings.ee, data.settings.disc, btcPrice, data.settings.sats);
-  const weeklyMining = miningRewards.netUSD * 7;
-  
-  // Miner Wars estimate (very rough - depends heavily on activity)
-  const yourShare = yourTH / clanTH;
-  const clanWinProb = clanShare / 100;
-  const yourWinProb = clanWinProb * yourShare;
-  const avgBlockReward = 296; // GMT
-  const blocksPerWeek = 7 * 144 / 10; // ~100 blocks/week roughly
-  const expectedWins = blocksPerWeek * clanWinProb;
-  const yourExpectedGMT = expectedWins * avgBlockReward * yourShare;
-  const weeklyMWgross = yourExpectedGMT * gmtPrice;
-  const weeklyMWnet = weeklyMWgross - (weekBudget * gmtPrice);
-  
-  const betterOption = weeklyMWnet > weeklyMining ? 'Miner Wars' : 'Mining Mode';
-  
-  document.getElementById('modeResults').innerHTML = `
-    <div class="verdict-box" style="background:${betterOption === 'Miner Wars' ? 'var(--accent-purple-dim)' : 'var(--accent-btc)'};border:1px solid ${betterOption === 'Miner Wars' ? 'var(--accent-purple)' : 'var(--accent-btc)'};">
-      <h4 style="color:${betterOption === 'Miner Wars' ? 'var(--accent-purple)' : 'var(--accent-btc)'};">⚔️ ${betterOption.toUpperCase()} RECOMMENDED</h4>
-      <p>Based on your TH and budget</p>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-label">MINING MODE</div><div class="stat-value btc">$${weeklyMining.toFixed(2)}/wk</div><div class="stat-sub">Guaranteed passive</div></div>
-      <div class="stat-box"><div class="stat-label">MINER WARS EST</div><div class="stat-value gmt">$${weeklyMWnet.toFixed(2)}/wk</div><div class="stat-sub">After ${weekBudget} GMT spent</div></div>
-      <div class="stat-box"><div class="stat-label">YOUR CLAN SHARE</div><div class="stat-value neu">${(yourShare*100).toFixed(3)}%</div></div>
-      <div class="stat-box"><div class="stat-label">CLAN WIN PROB</div><div class="stat-value neu">${(clanWinProb*100).toFixed(2)}%</div></div>
-    </div>
-    <div class="strat-card ${betterOption === 'Mining Mode' ? 'recommended' : ''}">
-      <h4>${betterOption === 'Mining Mode' ? '⛏️ MINING MODE VERDICT' : '⚔️ MINER WARS VERDICT'}</h4>
-      <p>${betterOption === 'Mining Mode' ? 
-        'With your TH share, Mining Mode provides more consistent returns. Miner Wars ROI depends heavily on coordinated boosting and luck.' : 
-        'Active participation in Miner Wars with coordinated boosting could outperform passive mining, but requires time and carries risk.'}</p>
-    </div>
-  `;
-}
-
-// =====================================================
-// PROJECTIONS
-// =====================================================
-function calcProjections() {
-  const th = parseFloat(document.getElementById('projTH')?.value || data.settings.th);
-  const ee = parseFloat(document.getElementById('projEE')?.value || data.settings.ee);
-  const disc = parseFloat(document.getElementById('projDisc')?.value || data.settings.disc);
-  const sats = data.settings.sats || 38;
-  
-  const scenarios = [
-    { id: 'Bear', price: 75000, el: 'projBearDay', elYr: 'projBearYr' },
-    { id: 'Base', price: 125000, el: 'projBaseDay', elYr: 'projBaseYr' },
-    { id: 'Bull', price: 200000, el: 'projBullDay', elYr: 'projBullYr' }
-  ];
-  
-  scenarios.forEach(s => {
-    const r = calcMiningRewards(th, ee, disc, s.price, sats);
-    const dayEl = document.getElementById(s.el);
-    const yrEl = document.getElementById(s.elYr);
-    if(dayEl) dayEl.textContent = '$' + r.netUSD.toFixed(2);
-    if(yrEl) yrEl.textContent = '$' + (r.netUSD * 365).toFixed(0);
-  });
-  
-  // Update timing analysis
-  updateTimingAnalysis();
-}
-
-function updateTimingAnalysis() {
-  const btcPrice = data.prices.btc || 97000;
-  let recommendation = '';
-  
-  if(btcPrice < 85000) {
-    recommendation = `<div class="strat-card recommended"><h4 class="text-green">🟢 BUY NOW</h4>
-    <p>BTC at $${btcPrice.toLocaleString()} is below most analyst targets. TH/s purchases now will likely appreciate as BTC rises. Strong buy signal.</p></div>`;
-  } else if(btcPrice < 110000) {
-    recommendation = `<div class="strat-card"><h4 class="text-cyan">🔵 ACCUMULATE</h4>
-    <p>BTC at $${btcPrice.toLocaleString()} is near lower base case. Good time for steady TH accumulation. DCA approach recommended.</p></div>`;
-  } else if(btcPrice < 150000) {
-    recommendation = `<div class="strat-card cautious"><h4 class="text-amber">🟡 SELECTIVE BUYING</h4>
-    <p>BTC at $${btcPrice.toLocaleString()} is at base case. Be selective - buy only high-efficiency miners. Consider waiting for dips.</p></div>`;
-  } else {
-    recommendation = `<div class="strat-card avoid"><h4 class="text-red">🔴 HOLD/WAIT</h4>
-    <p>BTC at $${btcPrice.toLocaleString()} is elevated. New TH purchases may have extended payback. Consider taking profits instead.</p></div>`;
-  }
-  
-  const timingEl = document.getElementById('timingAnalysis');
-  if(timingEl) timingEl.innerHTML = recommendation;
-}
-
-function analyzeTiming() {
-  const curCost = parseFloat(document.getElementById('timeCurCost').value) || 55;
-  const thToBuy = parseFloat(document.getElementById('timeTHbuy').value) || 50;
-  const futCost = parseFloat(document.getElementById('timeFutCost').value) || 70;
-  const btcPrice = data.prices.btc || 97000;
-  const sats = data.settings.sats || 38;
-  const disc = data.settings.disc || 23;
-  
-  const curTotal = curCost * thToBuy;
-  const futTotal = futCost * thToBuy;
-  const savings = futTotal - curTotal;
-  
-  // 6 months of mining rewards if bought now
-  const rewards = calcMiningRewards(thToBuy, 17, disc, btcPrice, sats);
-  const sixMonthRewards = rewards.netUSD * 180;
-  
-  const totalBenefit = savings + sixMonthRewards;
-  const shouldBuyNow = totalBenefit > 0;
-  
-  document.getElementById('timingResults').innerHTML = `
-    <div class="verdict-box" style="background:${shouldBuyNow ? 'var(--accent-green-dim)' : 'var(--accent-red-dim)'};border:1px solid ${shouldBuyNow ? 'var(--accent-green)' : 'var(--accent-red)'};">
-      <h4 style="color:${shouldBuyNow ? 'var(--accent-green)' : 'var(--accent-red)'};">${shouldBuyNow ? '✅ BUY NOW' : '⏳ CONSIDER WAITING'}</h4>
-      <p>Net benefit of buying now: ${shouldBuyNow ? '+' : ''}$${totalBenefit.toFixed(0)}</p>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-label">BUY NOW COST</div><div class="stat-value neu">$${curTotal.toLocaleString()}</div></div>
-      <div class="stat-box"><div class="stat-label">6MO FUTURE COST</div><div class="stat-value neg">$${futTotal.toLocaleString()}</div></div>
-      <div class="stat-box hl-green"><div class="stat-label">PRICE SAVINGS</div><div class="stat-value pos">$${savings.toLocaleString()}</div></div>
-      <div class="stat-box hl-green"><div class="stat-label">6MO MINING EARNED</div><div class="stat-value pos">$${sixMonthRewards.toFixed(0)}</div></div>
-    </div>
-  `;
-}
-
-
-// =====================================================
-// MARKETPLACE SCANNER & DEAL ALERTS
-// =====================================================
-
-function evaluateDeal() {
-  const price = parseFloat(document.getElementById('scanPrice').value) || 0;
-  const th = parseFloat(document.getElementById('scanTH').value) || 0;
-  const ee = parseFloat(document.getElementById('scanEE').value) || 20;
-  const name = document.getElementById('scanName').value || 'Unnamed Miner';
-  
-  if(price <= 0 || th <= 0) {
-    document.getElementById('scanResults').innerHTML = '<div class="alert alert-warn">⚠️ Enter price and TH/s to evaluate</div>';
-    return;
-  }
-  
-  const btcPrice = data.prices.btc || 97000;
-  const sats = data.settings.sats || 38;
-  const disc = data.settings.disc || 23;
-  
-  // Calculate metrics
-  const costPerTH = price / th;
-  const rewards = calcMiningRewards(th, ee, disc, btcPrice, sats);
-  const dailyNet = rewards.netUSD;
-  const monthlyNet = dailyNet * 30;
-  const yearlyNet = dailyNet * 365;
-  const breakevenDays = dailyNet > 0 ? Math.ceil(price / dailyNet) : Infinity;
-  const breakevenMonths = (breakevenDays / 30).toFixed(1);
-  const roi1yr = ((yearlyNet / price) * 100).toFixed(1);
-  
-  // Get alert thresholds
-  const alerts = data.alerts || {};
-  const maxCostTH = alerts.maxCostTH || 50;
-  const greatCostTH = alerts.greatCostTH || 40;
-  const maxEE = alerts.maxEE || 18;
-  const maxBreakeven = alerts.maxBreakeven || 18;
-  
-  // Determine verdict
-  let verdict = 'FAIR DEAL';
-  let verdictClass = '';
-  let verdictIcon = '📊';
-  let isGreatDeal = false;
-  let isGoodDeal = false;
-  
-  if(costPerTH <= greatCostTH && ee <= maxEE && breakevenMonths <= maxBreakeven) {
-    verdict = '🔥 GREAT DEAL! 🔥';
-    verdictClass = 'hl-green';
-    verdictIcon = '🚀';
-    isGreatDeal = true;
-  } else if(costPerTH <= maxCostTH && ee <= maxEE) {
-    verdict = '✅ GOOD DEAL';
-    verdictClass = 'hl-green';
-    verdictIcon = '👍';
-    isGoodDeal = true;
-  } else if(costPerTH > 65 || breakevenMonths > 24) {
-    verdict = '⚠️ OVERPRICED';
-    verdictClass = 'hl-red';
-    verdictIcon = '👎';
-  } else if(ee > 22) {
-    verdict = '⚠️ LOW EFFICIENCY';
-    verdictClass = 'hl-red';
-    verdictIcon = '⚡';
-  }
-  
-  // Score out of 100
-  let score = 50;
-  score += (55 - costPerTH) * 1.5; // $/TH factor
-  score += (18 - ee) * 2; // Efficiency factor
-  score += (18 - breakevenMonths) * 1; // Breakeven factor
-  score = Math.max(0, Math.min(100, Math.round(score)));
-  
-  const scoreColor = score >= 75 ? 'var(--accent-green)' : score >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)';
-  
-  document.getElementById('scanResults').innerHTML = `
-    <div class="verdict-box ${verdictClass}" style="background:${isGreatDeal ? 'var(--accent-green-dim)' : isGoodDeal ? 'var(--accent-cyan-dim)' : 'var(--bg-input)'};border:1px solid ${isGreatDeal ? 'var(--accent-green)' : isGoodDeal ? 'var(--accent-cyan)' : 'var(--border)'};">
-      <h4 style="font-size:1.1rem;">${verdict}</h4>
-      <p>${name} • ${th} TH @ $${price.toLocaleString()}</p>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-box ${costPerTH <= greatCostTH ? 'hl-green' : costPerTH <= maxCostTH ? '' : 'hl-red'}">
-        <div class="stat-label">$/TH</div>
-        <div class="stat-value ${costPerTH <= greatCostTH ? 'pos' : costPerTH <= maxCostTH ? 'neu' : 'neg'}">$${costPerTH.toFixed(2)}</div>
-        <div class="stat-sub">${costPerTH <= greatCostTH ? '🔥 Excellent' : costPerTH <= maxCostTH ? '✅ Good' : '⚠️ High'}</div>
-      </div>
-      <div class="stat-box ${ee <= 15 ? 'hl-green' : ee <= maxEE ? '' : 'hl-red'}">
-        <div class="stat-label">EFFICIENCY</div>
-        <div class="stat-value ${ee <= 15 ? 'pos' : ee <= maxEE ? 'neu' : 'neg'}">${ee} W/TH</div>
-        <div class="stat-sub">${ee <= 15 ? '🔥 Optimal' : ee <= maxEE ? '✅ Good' : '⚠️ High fees'}</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">DAILY NET</div>
-        <div class="stat-value ${dailyNet > 0 ? 'pos' : 'neg'}">$${dailyNet.toFixed(3)}</div>
-        <div class="stat-sub">${Math.round(rewards.netSats)} sats</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">MONTHLY</div>
-        <div class="stat-value gold">$${monthlyNet.toFixed(2)}</div>
-      </div>
-      <div class="stat-box ${breakevenMonths <= 12 ? 'hl-green' : breakevenMonths <= maxBreakeven ? '' : 'hl-red'}">
-        <div class="stat-label">BREAK-EVEN</div>
-        <div class="stat-value ${breakevenMonths <= 12 ? 'pos' : breakevenMonths <= maxBreakeven ? 'neu' : 'neg'}">${breakevenMonths} mo</div>
-        <div class="stat-sub">${breakevenDays} days</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">1-YR ROI</div>
-        <div class="stat-value ${roi1yr > 50 ? 'pos' : roi1yr > 0 ? 'neu' : 'neg'}">${roi1yr}%</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">DEAL SCORE</div>
-        <div class="stat-value" style="color:${scoreColor};font-size:1.4rem;">${score}/100</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">YEARLY NET</div>
-        <div class="stat-value gold">$${yearlyNet.toFixed(0)}</div>
-      </div>
-    </div>
-    <div class="btn-row" style="margin-top:10px;">
-      <button class="btn btn-primary" onclick="saveDealToWatchlist('${name.replace(/'/g, "\\'")}', ${price}, ${th}, ${ee}, ${costPerTH.toFixed(2)}, '${breakevenMonths}', '${verdict.replace(/'/g, "\\'")}', ${score})">⭐ SAVE TO WATCHLIST</button>
-      ${isGreatDeal ? '<button class="btn btn-purple" onclick="shareGreatDeal(\'' + name.replace(/'/g, "\\'") + '\', ' + price + ', ' + th + ', ' + costPerTH.toFixed(2) + ')">📢 SHARE DEAL</button>' : ''}
-    </div>
-  `;
-  
-  // Trigger alert for great deals
-  if(isGreatDeal) {
-    triggerDealAlert(name, price, th, costPerTH, score);
-  }
-}
-
-function triggerDealAlert(name, price, th, costPerTH, score) {
-  // Visual alert
-  const alertBox = document.createElement('div');
-  alertBox.innerHTML = `
-    <div style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:16px 24px;border-radius:12px;box-shadow:0 8px 32px rgba(16,185,129,0.4);animation:slideDown 0.3s ease;">
-      <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;">🔥 GREAT DEAL FOUND! 🔥</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;margin-top:4px;">${name} • ${th} TH @ $${price} ($${costPerTH.toFixed(0)}/TH)</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;margin-top:4px;opacity:0.9;">Score: ${score}/100 • Click to dismiss</div>
-    </div>
-  `;
-  alertBox.style.cursor = 'pointer';
-  alertBox.onclick = () => alertBox.remove();
-  document.body.appendChild(alertBox);
-  
-  // Auto-remove after 8 seconds
-  setTimeout(() => alertBox.remove(), 8000);
-  
-  // Sound alert (simple beep using Web Audio)
-  if(data.alerts?.soundEnabled !== false) {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 880;
-      gain.gain.value = 0.1;
-      osc.start();
-      osc.stop(ctx.currentTime + 0.15);
-      setTimeout(() => {
-        const osc2 = ctx.createOscillator();
-        osc2.connect(gain);
-        osc2.frequency.value = 1100;
-        osc2.start();
-        osc2.stop(ctx.currentTime + 0.15);
-      }, 150);
-    } catch(e) {}
-  }
-  
-  // Browser notification
-  if('Notification' in window && Notification.permission === 'granted') {
-    new Notification('🔥 Great Miner Deal!', {
-      body: `${name} • ${th} TH @ $${price} ($${costPerTH.toFixed(0)}/TH) • Score: ${score}/100`,
-      icon: '⛏️'
-    });
-  }
-}
-
-function saveAlertThresholds() {
-  data.alerts = {
-    ...data.alerts,
-    maxCostTH: parseFloat(document.getElementById('alertMaxCostTH').value) || 50,
-    greatCostTH: parseFloat(document.getElementById('alertGreatCostTH').value) || 40,
-    maxEE: parseFloat(document.getElementById('alertMaxEE').value) || 18,
-    maxBreakeven: parseFloat(document.getElementById('alertMaxBreakeven').value) || 18
-  };
-  saveData();
-  
-  // Feedback
-  alert('✅ Alert thresholds saved!');
-}
-
-function clearScanner() {
-  document.getElementById('scanPrice').value = '';
-  document.getElementById('scanTH').value = '';
-  document.getElementById('scanEE').value = '';
-  document.getElementById('scanName').value = '';
-  document.getElementById('scanResults').innerHTML = '';
-}
-
-function shareGreatDeal(name, price, th, costPerTH) {
-  const text = `🔥 GREAT MINER DEAL on GoMining! 🔥\n\n${name}\n💰 Price: $${price}\n⛏️ Power: ${th} TH/s\n📊 Cost: $${costPerTH}/TH\n\n#GoMining #Bitcoin #Mining`;
-  
-  if(navigator.share) {
-    navigator.share({ title: 'Great Miner Deal!', text });
-  } else {
-    navigator.clipboard.writeText(text);
-    alert('📋 Deal info copied to clipboard!');
-  }
-}
-
-function requestNotificationPermission() {
-  if('Notification' in window) {
-    Notification.requestPermission().then(perm => {
-      data.alerts.browserNotify = (perm === 'granted');
-      saveData();
-      alert(perm === 'granted' ? '✅ Notifications enabled!' : '❌ Notifications denied');
-    });
-  }
-}
-
-// =====================================================
-// PRICE DROP ALERTS & TRACKING
-// =====================================================
-function addPriceAlert() {
-  const name = document.getElementById('priceAlertName').value.trim();
-  const th = parseFloat(document.getElementById('priceAlertTH').value) || 0;
-  const maxPrice = parseFloat(document.getElementById('priceAlertMaxPrice').value) || 0;
-  const maxCostTH = parseFloat(document.getElementById('priceAlertMaxCostTH').value) || 0;
-  
-  if(!name) {
-    alert('⚠️ Enter a miner name/type to track');
-    return;
-  }
-  if(maxPrice <= 0 && maxCostTH <= 0) {
-    alert('⚠️ Set either a max price or max $/TH target');
-    return;
-  }
-  
-  data.priceAlerts = data.priceAlerts || [];
-  data.priceAlerts.push({
-    id: Date.now(),
-    name,
-    th: th || null,
-    maxPrice: maxPrice || null,
-    maxCostTH: maxCostTH || null,
-    active: true,
-    created: new Date().toISOString(),
-    triggered: false,
-    lastChecked: null
-  });
-  
-  saveData();
-  renderPriceAlerts();
-  
-  // Clear form
-  document.getElementById('priceAlertName').value = '';
-  document.getElementById('priceAlertTH').value = '';
-  document.getElementById('priceAlertMaxPrice').value = '';
-  document.getElementById('priceAlertMaxCostTH').value = '';
-  
-  alert('✅ Price alert added! You\'ll be notified when a matching deal appears.');
-}
-
-function renderPriceAlerts() {
-  const container = document.getElementById('priceAlertsList');
-  if(!container) return;
-  
-  const alerts = data.priceAlerts || [];
-  
-  if(alerts.length === 0) {
-    container.innerHTML = '<div class="text-dim" style="text-align:center;padding:10px;font-size:0.7rem;">No price alerts set. Add one above!</div>';
-    return;
-  }
-  
-  container.innerHTML = alerts.map(a => {
-    const statusClass = a.active ? 'tag-green' : 'tag-amber';
-    const statusText = a.active ? '🔔 Active' : '🔕 Paused';
-    const targets = [];
-    if(a.maxPrice) targets.push('≤$' + a.maxPrice);
-    if(a.maxCostTH) targets.push('≤$' + a.maxCostTH + '/TH');
-    if(a.th) targets.push(a.th + ' TH');
-    
-    return `
-      <div class="strat-card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-        <div>
-          <strong class="text-cyan">${a.name}</strong>
-          <div class="text-dim" style="font-size:0.6rem;">Target: ${targets.join(' • ')}</div>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <span class="tag ${statusClass}">${statusText}</span>
-          <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.5rem;" onclick="togglePriceAlert(${a.id})">${a.active ? 'Pause' : 'Enable'}</button>
-          <button class="del-btn" onclick="deletePriceAlert(${a.id})">✕</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function togglePriceAlert(id) {
-  const alert = (data.priceAlerts || []).find(a => a.id === id);
-  if(alert) {
-    alert.active = !alert.active;
-    saveData();
-    renderPriceAlerts();
-  }
-}
-
-function deletePriceAlert(id) {
-  data.priceAlerts = (data.priceAlerts || []).filter(a => a.id !== id);
-  saveData();
-  renderPriceAlerts();
-}
-
-function checkPriceAlerts(name, price, th, costPerTH) {
-  const alerts = (data.priceAlerts || []).filter(a => a.active);
-  
-  for(const alert of alerts) {
-    // Check if name matches (case insensitive, partial match)
-    const nameMatch = name.toLowerCase().includes(alert.name.toLowerCase()) || 
-                      alert.name.toLowerCase().includes(name.toLowerCase());
-    
-    if(!nameMatch) continue;
-    
-    // Check TH if specified
-    if(alert.th && Math.abs(th - alert.th) > 1) continue;
-    
-    // Check price conditions
-    let priceMatch = false;
-    if(alert.maxPrice && price <= alert.maxPrice) priceMatch = true;
-    if(alert.maxCostTH && costPerTH <= alert.maxCostTH) priceMatch = true;
-    
-    if(priceMatch) {
-      triggerPriceDropAlert(alert, name, price, th, costPerTH);
-      return true;
-    }
-  }
-  return false;
-}
-
-function triggerPriceDropAlert(alert, name, price, th, costPerTH) {
-  // Visual popup
-  const popup = document.createElement('div');
-  popup.innerHTML = `
-    <div style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:16px 24px;border-radius:12px;box-shadow:0 8px 32px rgba(245,158,11,0.4);animation:slideDown 0.3s ease;cursor:pointer;">
-      <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;">📉 PRICE DROP ALERT! 📉</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;margin-top:4px;">${name} hit your target!</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;margin-top:4px;">💰 $${price} • ${th} TH • $${costPerTH.toFixed(0)}/TH</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;margin-top:4px;opacity:0.8;">Alert: "${alert.name}" • Click to dismiss</div>
-    </div>
-  `;
-  popup.onclick = () => popup.remove();
-  document.body.appendChild(popup);
-  setTimeout(() => popup.remove(), 10000);
-  
-  // Sound - different tone from great deal
-  if(data.alerts?.soundEnabled !== false) {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 660;
-      gain.gain.value = 0.1;
-      osc.start();
-      osc.stop(ctx.currentTime + 0.1);
-      setTimeout(() => {
-        const osc2 = ctx.createOscillator();
-        osc2.connect(gain);
-        osc2.frequency.value = 880;
-        osc2.start();
-        osc2.stop(ctx.currentTime + 0.1);
-        setTimeout(() => {
-          const osc3 = ctx.createOscillator();
-          osc3.connect(gain);
-          osc3.frequency.value = 1100;
-          osc3.start();
-          osc3.stop(ctx.currentTime + 0.15);
-        }, 100);
-      }, 100);
-    } catch(e) {}
-  }
-  
-  // Browser notification
-  if('Notification' in window && Notification.permission === 'granted') {
-    new Notification('📉 Price Drop Alert!', {
-      body: `${name} hit your target!\n$${price} • ${th} TH • $${costPerTH.toFixed(0)}/TH`,
-      icon: '📉'
-    });
-  }
-  
-  // Mark as triggered (optional - could reset)
-  alert.lastTriggered = new Date().toISOString();
-  saveData();
-}
-
-// Enhanced watchlist with price history
-function saveDealToWatchlist(name, price, th, ee, costPerTH, breakeven, verdict, score) {
-  data.watchlist = data.watchlist || [];
-  
-  // Check if similar item exists (by name)
-  const existing = data.watchlist.find(w => w.name.toLowerCase() === name.toLowerCase());
-  
-  if(existing) {
-    // Update existing - add to price history
-    existing.priceHistory = existing.priceHistory || [];
-    existing.priceHistory.push({
-      price,
-      costPerTH: parseFloat(costPerTH),
-      date: new Date().toISOString()
-    });
-    existing.price = price;
-    existing.costPerTH = parseFloat(costPerTH);
-    existing.lastUpdated = new Date().toISOString();
-    
-    // Check for price drop
-    if(existing.priceHistory.length > 1) {
-      const prevPrice = existing.priceHistory[existing.priceHistory.length - 2].price;
-      if(price < prevPrice) {
-        existing.trend = 'down';
-        existing.priceDrop = prevPrice - price;
-      } else if(price > prevPrice) {
-        existing.trend = 'up';
-        existing.priceIncrease = price - prevPrice;
-      } else {
-        existing.trend = 'flat';
-      }
-    }
-  } else {
-    // New watchlist item
-    data.watchlist.unshift({
-      id: Date.now(),
-      name,
-      price,
-      th,
-      ee,
-      costPerTH: parseFloat(costPerTH),
-      breakeven,
-      verdict,
-      score,
-      date: new Date().toISOString().split('T')[0],
-      targetPrice: null,
-      targetCostTH: null,
-      priceHistory: [{
-        price,
-        costPerTH: parseFloat(costPerTH),
-        date: new Date().toISOString()
-      }],
-      trend: null,
-      alertEnabled: true
-    });
-  }
-  
-  saveData();
-  renderWatchlist();
-  updateHistorySelect();
-  
-  // Check price alerts
-  checkPriceAlerts(name, price, th, parseFloat(costPerTH));
-  
-  // Feedback
-  const btn = event?.target;
-  if(btn) {
-    btn.textContent = existing ? '🔄 UPDATED!' : '✅ SAVED!';
-    btn.disabled = true;
-    setTimeout(() => {
-      btn.textContent = '⭐ SAVE TO WATCHLIST';
-      btn.disabled = false;
-    }, 2000);
-  }
-}
-
-function renderWatchlist() {
-  const table = document.getElementById('watchlistTable');
-  if(!table) return;
-  
-  const list = data.watchlist || [];
-  
-  if(list.length === 0) {
-    table.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:20px;">No saved deals yet. Evaluate a miner above to add to watchlist!</td></tr>';
-    return;
-  }
-  
-  table.innerHTML = list.map(d => {
-    const trendIcon = d.trend === 'down' ? '📉' : d.trend === 'up' ? '📈' : '➖';
-    const trendClass = d.trend === 'down' ? 'text-green' : d.trend === 'up' ? 'text-red' : 'text-dim';
-    const trendText = d.trend === 'down' ? `-$${d.priceDrop}` : d.trend === 'up' ? `+$${d.priceIncrease}` : 'New';
-    
-    const targetDisplay = d.targetPrice ? `$${d.targetPrice}` : d.targetCostTH ? `$${d.targetCostTH}/TH` : '—';
-    const alertIcon = d.alertEnabled ? '🔔' : '🔕';
-    
-    // Check if current price meets target
-    let targetMet = false;
-    if(d.targetPrice && d.price <= d.targetPrice) targetMet = true;
-    if(d.targetCostTH && d.costPerTH <= d.targetCostTH) targetMet = true;
-    
-    return `<tr class="${targetMet ? 'hl-green' : ''}">
-      <td><strong>${d.name}</strong><br><span class="text-dim" style="font-size:0.55rem;">${d.priceHistory?.length || 1} updates</span></td>
-      <td>$${d.price.toLocaleString()}</td>
-      <td>${d.th}</td>
-      <td class="${d.costPerTH <= 40 ? 'text-green' : d.costPerTH <= 50 ? '' : 'text-red'}">$${d.costPerTH}</td>
-      <td>
-        <input type="number" value="${d.targetPrice || ''}" placeholder="$" style="width:50px;padding:2px 4px;font-size:0.6rem;" onchange="setWatchlistTarget(${d.id}, 'price', this.value)">
-      </td>
-      <td class="${trendClass}">${trendIcon} ${trendText}</td>
-      <td>
-        <button class="btn btn-ghost" style="padding:2px 6px;font-size:0.5rem;" onclick="toggleWatchlistAlert(${d.id})">${alertIcon}</button>
-      </td>
-      <td>
-        <button class="btn btn-ghost" style="padding:2px 6px;font-size:0.5rem;margin-right:4px;" onclick="promptUpdatePrice(${d.id})">📝</button>
-        <button class="del-btn" onclick="removeFromWatchlist(${d.id})">✕</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function setWatchlistTarget(id, type, value) {
-  const item = (data.watchlist || []).find(w => w.id === id);
-  if(item) {
-    if(type === 'price') {
-      item.targetPrice = parseFloat(value) || null;
-    } else if(type === 'costTH') {
-      item.targetCostTH = parseFloat(value) || null;
-    }
-    saveData();
-    
-    // Check if current price meets new target
-    if(item.targetPrice && item.price <= item.targetPrice) {
-      triggerPriceDropAlert({ name: item.name }, item.name, item.price, item.th, item.costPerTH);
-    }
-  }
-}
-
-function toggleWatchlistAlert(id) {
-  const item = (data.watchlist || []).find(w => w.id === id);
-  if(item) {
-    item.alertEnabled = !item.alertEnabled;
-    saveData();
-    renderWatchlist();
-  }
-}
-
-function promptUpdatePrice(id) {
-  const item = (data.watchlist || []).find(w => w.id === id);
-  if(!item) return;
-  
-  const newPrice = prompt(`Enter new price for "${item.name}":\n(Current: $${item.price})`, item.price);
-  if(newPrice === null) return;
-  
-  const price = parseFloat(newPrice);
-  if(isNaN(price) || price <= 0) {
-    alert('Invalid price');
-    return;
-  }
-  
-  const newCostTH = price / item.th;
-  
-  // Add to price history
-  item.priceHistory = item.priceHistory || [];
-  const prevPrice = item.price;
-  
-  item.priceHistory.push({
-    price,
-    costPerTH: newCostTH,
-    date: new Date().toISOString()
-  });
-  
-  // Update current values
-  item.price = price;
-  item.costPerTH = newCostTH;
-  item.lastUpdated = new Date().toISOString();
-  
-  // Set trend
-  if(price < prevPrice) {
-    item.trend = 'down';
-    item.priceDrop = prevPrice - price;
-    delete item.priceIncrease;
-    
-    // Check if target met
-    if(item.alertEnabled) {
-      if((item.targetPrice && price <= item.targetPrice) || 
-         (item.targetCostTH && newCostTH <= item.targetCostTH)) {
-        triggerPriceDropAlert({ name: item.name }, item.name, price, item.th, newCostTH);
-      }
-    }
-  } else if(price > prevPrice) {
-    item.trend = 'up';
-    item.priceIncrease = price - prevPrice;
-    delete item.priceDrop;
-  } else {
-    item.trend = 'flat';
-    delete item.priceDrop;
-    delete item.priceIncrease;
-  }
-  
-  saveData();
-  renderWatchlist();
-  updateHistorySelect();
-  
-  // Also check global price alerts
-  checkPriceAlerts(item.name, price, item.th, newCostTH);
-}
-
-function updateHistorySelect() {
-  const select = document.getElementById('historySelect');
-  if(!select) return;
-  
-  const list = data.watchlist || [];
-  select.innerHTML = '<option value="">-- Select from watchlist --</option>' +
-    list.map(w => `<option value="${w.id}">${w.name} (${w.priceHistory?.length || 1} prices)</option>`).join('');
-}
-
-function showPriceHistory() {
-  const select = document.getElementById('historySelect');
-  const container = document.getElementById('priceHistoryChart');
-  if(!select || !container) return;
-  
-  const id = parseInt(select.value);
-  if(!id) {
-    container.innerHTML = '';
-    return;
-  }
-  
-  const item = (data.watchlist || []).find(w => w.id === id);
-  if(!item || !item.priceHistory || item.priceHistory.length === 0) {
-    container.innerHTML = '<div class="text-dim" style="text-align:center;padding:10px;">No price history yet</div>';
-    return;
-  }
-  
-  const history = item.priceHistory;
-  const minPrice = Math.min(...history.map(h => h.price)) * 0.9;
-  const maxPrice = Math.max(...history.map(h => h.price)) * 1.1;
-  const range = maxPrice - minPrice;
-  
-  // Simple ASCII-style chart
-  const chartHeight = 100;
-  const points = history.map((h, i) => {
-    const x = (i / (history.length - 1 || 1)) * 100;
-    const y = chartHeight - ((h.price - minPrice) / range) * chartHeight;
-    return { x, y, price: h.price, date: h.date };
-  });
-  
-  // Determine trend
-  const firstPrice = history[0].price;
-  const lastPrice = history[history.length - 1].price;
-  const overallTrend = lastPrice < firstPrice ? 'down' : lastPrice > firstPrice ? 'up' : 'flat';
-  const trendColor = overallTrend === 'down' ? 'var(--accent-green)' : overallTrend === 'up' ? 'var(--accent-red)' : 'var(--accent-cyan)';
-  const trendIcon = overallTrend === 'down' ? '📉' : overallTrend === 'up' ? '📈' : '➖';
-  const changeAmt = Math.abs(lastPrice - firstPrice);
-  const changePct = ((changeAmt / firstPrice) * 100).toFixed(1);
-  
-  container.innerHTML = `
-    <div class="stat-grid" style="margin-bottom:10px;">
-      <div class="stat-box"><div class="stat-label">FIRST PRICE</div><div class="stat-value neu">$${firstPrice}</div></div>
-      <div class="stat-box"><div class="stat-label">CURRENT</div><div class="stat-value" style="color:${trendColor};">$${lastPrice}</div></div>
-      <div class="stat-box"><div class="stat-label">CHANGE</div><div class="stat-value" style="color:${trendColor};">${trendIcon} ${overallTrend === 'down' ? '-' : '+'}$${changeAmt} (${changePct}%)</div></div>
-      <div class="stat-box"><div class="stat-label">UPDATES</div><div class="stat-value neu">${history.length}</div></div>
-    </div>
-    <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
-      <svg width="100%" height="${chartHeight + 40}" viewBox="0 0 100 ${chartHeight + 40}" preserveAspectRatio="none">
-        <!-- Grid lines -->
-        <line x1="0" y1="0" x2="100" y2="0" stroke="var(--border)" stroke-width="0.5"/>
-        <line x1="0" y1="${chartHeight/2}" x2="100" y2="${chartHeight/2}" stroke="var(--border)" stroke-width="0.5"/>
-        <line x1="0" y1="${chartHeight}" x2="100" y2="${chartHeight}" stroke="var(--border)" stroke-width="0.5"/>
-        
-        <!-- Price line -->
-        <polyline 
-          points="${points.map(p => `${p.x},${p.y}`).join(' ')}"
-          fill="none" 
-          stroke="${trendColor}" 
-          stroke-width="2"
-        />
-        
-        <!-- Data points -->
-        ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${trendColor}"/>`).join('')}
-      </svg>
-      <div style="display:flex;justify-content:space-between;font-size:0.5rem;color:var(--text-dim);margin-top:4px;">
-        <span>$${minPrice.toFixed(0)}</span>
-        <span>${history.length} data points</span>
-        <span>$${maxPrice.toFixed(0)}</span>
-      </div>
-    </div>
-    <div style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;max-height:150px;overflow-y:auto;">
-      <table style="width:100%;">
-        <thead><tr><th>DATE</th><th>PRICE</th><th>$/TH</th><th>CHANGE</th></tr></thead>
-        <tbody>
-          ${history.slice().reverse().map((h, i, arr) => {
-            const prev = arr[i + 1];
-            const change = prev ? h.price - prev.price : 0;
-            const changeClass = change < 0 ? 'text-green' : change > 0 ? 'text-red' : '';
-            return `<tr>
-              <td>${new Date(h.date).toLocaleDateString()}</td>
-              <td>$${h.price}</td>
-              <td>$${h.costPerTH.toFixed(2)}</td>
-              <td class="${changeClass}">${change !== 0 ? (change > 0 ? '+' : '') + change : '—'}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-// Update initScanner to also render price alerts
-function initScanner() {
-  // Load alert thresholds
-  const a = data.alerts || {};
-  if(document.getElementById('alertMaxCostTH')) document.getElementById('alertMaxCostTH').value = a.maxCostTH || 50;
-  if(document.getElementById('alertGreatCostTH')) document.getElementById('alertGreatCostTH').value = a.greatCostTH || 40;
-  if(document.getElementById('alertMaxEE')) document.getElementById('alertMaxEE').value = a.maxEE || 18;
-  if(document.getElementById('alertMaxBreakeven')) document.getElementById('alertMaxBreakeven').value = a.maxBreakeven || 18;
-  
-  // Render watchlist and price alerts
-  renderWatchlist();
-  renderPriceAlerts();
-  updateHistorySelect();
-  
-  // Request notification permission
-  if('Notification' in window && Notification.permission === 'default') {
-    // Don't auto-request, let user trigger it
-  }
-}
-
-// =====================================================
-// TRACKER (Miner Wars Logging)
-// =====================================================
-function initTracker() {
-  document.getElementById('logDate').valueAsDate = new Date();
-}
-
-function addEntry() {
-  const date = document.getElementById('logDate').value;
-  const mult = document.getElementById('logMult').value;
-  const spent = parseFloat(document.getElementById('logSpent').value) || 0;
-  const earned = parseFloat(document.getElementById('logEarned').value) || 0;
-  const won = document.getElementById('logWon').value;
-  
-  if(!date) return alert('Select a date');
-  
-  data.entries.push({
-    id: Date.now(),
-    date, mult, spent, earned, won,
-    net: earned - spent,
-    timestamp: new Date().toISOString()
-  });
-  
-  saveData();
-  renderEntries();
-  
-  // Clear form
-  document.getElementById('logSpent').value = '0';
-  document.getElementById('logEarned').value = '0';
-  document.getElementById('logWon').value = 'no';
-}
-
-function deleteEntry(id) {
-  data.entries = data.entries.filter(e => e.id !== id);
-  saveData();
-  renderEntries();
-}
-
-function renderEntries() {
-  const entries = data.entries.sort((a,b) => new Date(b.date) - new Date(a.date));
-  
-  // Stats
-  const spent = entries.reduce((s,e) => s + e.spent, 0);
-  const earned = entries.reduce((s,e) => s + e.earned, 0);
-  const net = earned - spent;
-  const roi = spent > 0 ? ((net / spent) * 100) : 0;
-  const blocks = entries.filter(e => e.won !== 'no').length;
-  
-  document.getElementById('trkSpent').textContent = spent.toLocaleString();
-  document.getElementById('trkEarned').textContent = earned.toLocaleString();
-  document.getElementById('trkNet').textContent = (net >= 0 ? '+' : '') + net.toLocaleString();
-  document.getElementById('trkNet').className = 'stat-value ' + (net > 0 ? 'pos' : net < 0 ? 'neg' : 'neu');
-  document.getElementById('trkROI').textContent = roi.toFixed(1) + '%';
-  document.getElementById('trkROI').className = 'stat-value ' + (roi > 0 ? 'pos' : roi < 0 ? 'neg' : 'neu');
-  document.getElementById('trkBlocks').textContent = blocks;
-  document.getElementById('trkRounds').textContent = entries.length;
-  
-  // Table
-  const tbody = document.getElementById('logTable');
-  if(entries.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:20px;">No entries yet. Log your first round above!</td></tr>';
-    return;
-  }
-  
-  tbody.innerHTML = entries.slice(0, 50).map(e => {
-    const netClass = e.net > 0 ? 'text-green' : e.net < 0 ? 'text-red' : '';
-    const wonTag = e.won === 'personal' ? '<span class="tag tag-green">Personal</span>' :
-                   e.won === 'clan' ? '<span class="tag tag-cyan">Clan</span>' : '—';
-    return `<tr>
-      <td>${e.date}</td>
-      <td><span class="tag tag-purple">${e.mult}</span></td>
-      <td class="text-red">${e.spent}</td>
-      <td class="text-green">${e.earned}</td>
-      <td class="${netClass}">${e.net >= 0 ? '+' : ''}${e.net.toFixed(1)}</td>
-      <td>${wonTag}</td>
-      <td><button class="del-btn" onclick="deleteEntry(${e.id})">✕</button></td>
-    </tr>`;
-  }).join('');
-}
-
-// =====================================================
-// SETTINGS
-// =====================================================
-function loadSettingsForm() {
-  const s = data.settings;
-  document.getElementById('setTH').value = s.th;
-  document.getElementById('setEE').value = s.ee;
-  document.getElementById('setDisc').value = s.disc;
-  document.getElementById('setSats').value = s.sats;
-  document.getElementById('setClan').value = s.clan;
-  document.getElementById('setClanTH').value = s.clanTH;
-  document.getElementById('setClanShare').value = s.clanShare;
-  document.getElementById('setLeague').value = s.league;
-}
-
-function saveSettings() {
-  data.settings = {
-    th: parseFloat(document.getElementById('setTH').value) || 29.08,
-    ee: parseFloat(document.getElementById('setEE').value) || 17.75,
-    disc: parseFloat(document.getElementById('setDisc').value) || 23,
-    sats: parseFloat(document.getElementById('setSats').value) || 38,
-    clan: document.getElementById('setClan').value || '🌀 GravitationaL 🌀',
-    clanTH: parseFloat(document.getElementById('setClanTH').value) || 19378,
-    clanShare: parseFloat(document.getElementById('setClanShare').value) || 2.63,
-    league: document.getElementById('setLeague').value || 'Odyssey'
-  };
-  saveData();
-  alert('✅ Settings saved!');
-}
-
-function exportData() {
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `gm-roi-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-}
-
-function exportCSV() {
-  const rows = [['Date','Mult','Spent','Earned','Net','Won']];
-  data.entries.forEach(e => rows.push([e.date, e.mult, e.spent, e.earned, e.net, e.won]));
-  const csv = rows.map(r => r.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `mw-history-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if(confirm(`Import ${imported.entries?.length || 0} entries and settings?`)) {
-        data = {...data, ...imported};
-        saveData();
-        alert('✅ Imported!');
-        switchTab('dashboard');
-      }
-    } catch(err) { alert('Error: ' + err.message); }
-  };
-  reader.readAsText(file);
-}
-
-function nukeData() {
-  if(!confirm('⚠️ DELETE ALL DATA?')) return;
-  if(!confirm('Are you sure? This cannot be undone!')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  data = { 
-    settings: { th: 29.08, ee: 17.75, disc: 23, sats: 38, clanTH: 19378, clanShare: 2.63, clan: '🌀 GravitationaL 🌀', league: 'Odyssey' }, 
-    entries: [], 
-    prices: { btc: 0, gmt: 0, sats: 38 },
-    watchlist: [],
-    priceAlerts: [],
-    alerts: { maxCostTH: 50, greatCostTH: 40, maxEE: 18, maxBreakeven: 18, soundEnabled: true, browserNotify: false }
-  };
-  switchTab('dashboard');
-}
-
-// =====================================================
-// INITIALIZATION
-// =====================================================
-function init() {
-  loadData();
-  fetchPrices();
-  
-  // Render initial tab
-  document.getElementById('tabContent').innerHTML = tabTemplates.dashboard;
-  initDashboard();
-  
-  // Refresh prices every 60 seconds
-  setInterval(fetchPrices, 60000);
-}
-
-// Start app
-init();
-</script>
-</body>
-</html>
